@@ -68,10 +68,13 @@ Spec: `docs/superpowers/specs/2026-10-09-convert-extract-desktop-design.md`
     "build": "vite build",
     "preview": "vite preview",
     "test": "vitest run",
+    "coverage": "vitest run --coverage",
     "tauri": "tauri"
   },
   "devDependencies": {
     "@tauri-apps/cli": "^2.12.1",
+    "@vitest/coverage-v8": "5.0.3",
+    "jsdom": "^30.1.2",
     "vite": "^8.3.4",
     "vitest": "^5.0.3"
   },
@@ -90,9 +93,19 @@ export default defineConfig({
   clearScreen: false,
   server: { port: 5173, strictPort: true },
   build: { target: 'esnext' },
-  test: { include: ['tests/**/*.test.js'] },
+  test: {
+    include: ['tests/**/*.test.js'],
+    coverage: {
+      provider: 'v8',
+      include: ['src/**/*.js'],
+      exclude: ['src/main.js', 'src/utilities/_template.js'],
+      thresholds: { lines: 100, functions: 100, branches: 100, statements: 100 },
+    },
+  },
 });
 ```
+
+UI test files opt into the DOM with a `// @vitest-environment jsdom` comment on their first line; everything else runs in Node. `src/main.js` is excluded from coverage because it only wires modules together at load time; `_template.js` is a copy source, not code.
 
 - [ ] **Step 3: Create `index.html`**
 
@@ -261,6 +274,21 @@ describe('execute output mapping', () => {
     expect(res.ok).toBe(false);
     expect(res.error).toMatch(/array with non-string items/);
   });
+
+  it('describes an array of strings returned where a string was declared', () => {
+    const res = execute(meta({ fn: () => ['a'] }), '');
+    expect(res.error).toMatch(/returned an array of strings/);
+  });
+
+  it('describes a null result', () => {
+    const res = execute(meta({ fn: () => null }), '');
+    expect(res.error).toMatch(/returned null/);
+  });
+
+  it('stringifies a thrown non-Error value', () => {
+    const res = execute(meta({ fn: () => { throw 'boom'; } }), '');
+    expect(res).toEqual({ ok: false, error: 'boom' });
+  });
 });
 ```
 
@@ -317,7 +345,7 @@ function describe(v) {
 - [ ] **Step 4: Run the tests to verify they pass**
 
 Run: `pnpm test`
-Expected: `tests/run.test.js` 9 passed.
+Expected: `tests/run.test.js` 12 passed.
 
 - [ ] **Step 5: Commit**
 
@@ -530,6 +558,11 @@ describe('validate', () => {
 
   it('rejects a module with no meta export', () => {
     expect(() => validate(undefined, 'f.js')).toThrow('Utility f.js: has no meta export');
+    expect(() => validate('not an object', 'f.js')).toThrow('Utility f.js: has no meta export');
+  });
+
+  it('rejects a non-string name', () => {
+    expect(() => validate({ ...good(), name: 42 }, 'f.js')).toThrow(/meta.name must be a non-empty string/);
   });
 });
 
@@ -548,6 +581,10 @@ describe('buildRegistry', () => {
       'a.js': { meta: good() },
       'b.js': { meta: good() },
     })).toThrow('Utility b.js: duplicate name "upper"');
+  });
+
+  it('rejects a module value that is not an object', () => {
+    expect(() => buildRegistry({ 'a.js': undefined })).toThrow('Utility a.js: has no meta export');
   });
 });
 
@@ -621,7 +658,7 @@ export const quickUtilities = utilities.filter((u) => u.quick);
 - [ ] **Step 4: Run the tests to verify they pass**
 
 Run: `pnpm test`
-Expected: 3 files, all passed (registry 12, run 9, hexdump 7).
+Expected: 3 files, all passed (registry 15, run 12, hexdump 7).
 
 - [ ] **Step 5: Commit**
 
@@ -637,9 +674,135 @@ git commit -m "Add utility registry with meta validation"
 **Files:**
 - Create: `src/ui/tabs.js`
 - Modify: `src/main.js`, `src/style.css`
+- Test: `tests/ui/tabs.test.js`
 
 **Interfaces:**
 - Produces: `createTabBar(root) → { add({ title, closable, panelEl }) → id, activate(id), setTitle(id, title), close(id), onAdd(fn) }`. Panels are shown and hidden with the `hidden` attribute. Closing the active tab activates its left neighbour.
+
+- [ ] **Step 0a: Write the failing tests**
+
+`tests/ui/tabs.test.js`:
+```js
+// @vitest-environment jsdom
+import { describe, it, expect, vi } from 'vitest';
+import { createTabBar } from '../../src/ui/tabs.js';
+
+function setup() {
+  document.body.innerHTML = '<div id="app"></div>';
+  const root = document.getElementById('app');
+  const bar = createTabBar(root);
+  const panel = (text) => { const el = document.createElement('div'); el.textContent = text; return el; };
+  return { root, bar, panel };
+}
+const titles = (root) => [...root.querySelectorAll('.tab-title')].map((e) => e.textContent);
+const activeTitle = (root) => root.querySelector('.tab.active .tab-title').textContent;
+const visiblePanels = (root) => [...root.querySelectorAll('.tab-panels > *')].filter((p) => !p.hidden).map((p) => p.textContent);
+
+describe('createTabBar', () => {
+  it('renders a strip, a + button and an empty panel container', () => {
+    const { root } = setup();
+    expect(root.querySelector('.tab-bar .tab-strip')).not.toBeNull();
+    expect(root.querySelector('.tab-bar .tab-add').textContent).toBe('+');
+    expect(root.querySelector('.tab-panels').children.length).toBe(0);
+  });
+
+  it('add() appends a tab, activates it and shows only its panel', () => {
+    const { root, bar, panel } = setup();
+    bar.add({ title: 'A', panelEl: panel('pa') });
+    bar.add({ title: 'B', panelEl: panel('pb') });
+    expect(titles(root)).toEqual(['A', 'B']);
+    expect(activeTitle(root)).toBe('B');
+    expect(visiblePanels(root)).toEqual(['pb']);
+  });
+
+  it('closable tabs get a × button; non-closable ones do not', () => {
+    const { root, bar, panel } = setup();
+    bar.add({ title: 'Quick', closable: false, panelEl: panel('q') });
+    bar.add({ title: 'A', panelEl: panel('a') });
+    const tabs = root.querySelectorAll('.tab');
+    expect(tabs[0].querySelector('.tab-close')).toBeNull();
+    expect(tabs[1].querySelector('.tab-close')).not.toBeNull();
+  });
+
+  it('clicking a tab activates it', () => {
+    const { root, bar, panel } = setup();
+    bar.add({ title: 'A', panelEl: panel('a') });
+    bar.add({ title: 'B', panelEl: panel('b') });
+    root.querySelectorAll('.tab')[0].click();
+    expect(activeTitle(root)).toBe('A');
+    expect(visiblePanels(root)).toEqual(['a']);
+  });
+
+  it('setTitle relabels a tab and ignores unknown ids', () => {
+    const { root, bar, panel } = setup();
+    const id = bar.add({ title: 'Untitled', panelEl: panel('a') });
+    bar.setTitle(id, 'hexdump → text');
+    bar.setTitle(999, 'nope');
+    expect(titles(root)).toEqual(['hexdump → text']);
+  });
+
+  it('closing the active tab activates its left neighbour and removes the panel', () => {
+    const { root, bar, panel } = setup();
+    bar.add({ title: 'Quick', closable: false, panelEl: panel('q') });
+    bar.add({ title: 'A', panelEl: panel('a') });
+    const b = bar.add({ title: 'B', panelEl: panel('b') });
+    bar.close(b);
+    expect(titles(root)).toEqual(['Quick', 'A']);
+    expect(activeTitle(root)).toBe('A');
+    expect(visiblePanels(root)).toEqual(['a']);
+  });
+
+  it('closing a non-active tab leaves the active one alone', () => {
+    const { root, bar, panel } = setup();
+    bar.add({ title: 'A', panelEl: panel('a') });
+    const b = bar.add({ title: 'B', panelEl: panel('b') });
+    bar.add({ title: 'C', panelEl: panel('c') });
+    bar.close(b);
+    expect(titles(root)).toEqual(['A', 'C']);
+    expect(activeTitle(root)).toBe('C');
+  });
+
+  it('closing the last remaining tab leaves nothing active', () => {
+    const { root, bar, panel } = setup();
+    const a = bar.add({ title: 'A', panelEl: panel('a') });
+    bar.close(a);
+    expect(titles(root)).toEqual([]);
+    expect(root.querySelector('.tab.active')).toBeNull();
+  });
+
+  it('close() with an unknown id is a no-op', () => {
+    const { root, bar, panel } = setup();
+    bar.add({ title: 'A', panelEl: panel('a') });
+    bar.close(999);
+    expect(titles(root)).toEqual(['A']);
+  });
+
+  it('the × button closes without activating the tab first', () => {
+    const { root, bar, panel } = setup();
+    bar.add({ title: 'A', panelEl: panel('a') });
+    bar.add({ title: 'B', panelEl: panel('b') });
+    bar.add({ title: 'C', panelEl: panel('c') });
+    root.querySelectorAll('.tab')[0].click();
+    root.querySelectorAll('.tab')[2].querySelector('.tab-close').click();
+    expect(titles(root)).toEqual(['A', 'B']);
+    expect(activeTitle(root)).toBe('A');
+  });
+
+  it('clicking + calls the onAdd handler; without one it is a no-op', () => {
+    const { root, bar } = setup();
+    root.querySelector('.tab-add').click();
+    const onAdd = vi.fn();
+    bar.onAdd(onAdd);
+    root.querySelector('.tab-add').click();
+    expect(onAdd).toHaveBeenCalledTimes(1);
+  });
+});
+```
+
+- [ ] **Step 0b: Run the tests to verify they fail**
+
+Run: `pnpm test`
+Expected: FAIL, cannot resolve `../../src/ui/tabs.js`.
 
 - [ ] **Step 1: Implement `src/ui/tabs.js`**
 
@@ -804,10 +967,10 @@ Stop the dev server (Ctrl+C).
 - [ ] **Step 5: Run tests and commit**
 
 Run: `pnpm test`
-Expected: all pass (no new tests in this task).
+Expected: all pass, `tests/ui/tabs.test.js` 11 passed.
 
 ```powershell
-git add src/ui/tabs.js src/main.js src/style.css
+git add src/ui/tabs.js src/main.js src/style.css tests/ui/tabs.test.js
 git commit -m "Add tab bar and app skeleton"
 ```
 
@@ -818,10 +981,234 @@ git commit -m "Add tab bar and app skeleton"
 **Files:**
 - Create: `src/ui/clipboard.js`, `src/ui/tab-panel.js`
 - Modify: `src/main.js`
+- Test: `tests/ui/clipboard.test.js`, `tests/ui/tab-panel.test.js`
 
 **Interfaces:**
 - Consumes: `execute` from `src/ui/run.js`; `utilities` from `src/registry.js`; `createTabBar` from `src/ui/tabs.js`.
 - Produces: `copyText(text, statusEl) → Promise<void>`; `createTabPanel({ utilities, onTitleChange, onSendToNewTab }) → { el, setInput(text) }`.
+
+- [ ] **Step 0a: Write the failing clipboard tests**
+
+`tests/ui/clipboard.test.js`:
+```js
+// @vitest-environment jsdom
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
+import { copyText } from '../../src/ui/clipboard.js';
+
+function mockClipboard(impl) {
+  Object.defineProperty(navigator, 'clipboard', { value: { writeText: vi.fn(impl) }, configurable: true });
+  return navigator.clipboard.writeText;
+}
+
+describe('copyText', () => {
+  beforeEach(() => vi.useFakeTimers());
+  afterEach(() => vi.useRealTimers());
+
+  it('writes the text and flashes "Copied", then restores the previous status', async () => {
+    const writeText = mockClipboard(() => Promise.resolve());
+    const status = document.createElement('span');
+    status.textContent = 'idle';
+    await copyText('hello', status);
+    expect(writeText).toHaveBeenCalledWith('hello');
+    expect(status.textContent).toBe('Copied');
+    vi.advanceTimersByTime(1500);
+    expect(status.textContent).toBe('idle');
+  });
+
+  it('reports a failure message', async () => {
+    mockClipboard(() => Promise.reject(new Error('denied')));
+    const status = document.createElement('span');
+    await copyText('x', status);
+    expect(status.textContent).toBe('Copy failed: denied');
+  });
+
+  it('does not overwrite a status that changed during the flash', async () => {
+    mockClipboard(() => Promise.resolve());
+    const status = document.createElement('span');
+    await copyText('x', status);
+    status.textContent = 'something newer';
+    vi.advanceTimersByTime(1500);
+    expect(status.textContent).toBe('something newer');
+  });
+});
+```
+
+- [ ] **Step 0b: Write the failing tab-panel tests**
+
+`tests/ui/tab-panel.test.js`:
+```js
+// @vitest-environment jsdom
+import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { createTabPanel } from '../../src/ui/tab-panel.js';
+
+const upper = { name: 'upper', description: 'Uppercase', category: 'text', fn: (s) => s.toUpperCase(), inputType: 'string', resultType: 'string', quick: true };
+const count = { name: 'count', description: 'Count lines', category: 'lines', fn: (x) => (Array.isArray(x) ? `${x.length} lines` : 'one string'), inputType: 'both', resultType: 'string', quick: false };
+const boom = { name: 'boom', description: 'Always throws', category: 'text', fn: () => { throw new Error('kaboom'); }, inputType: 'string', resultType: 'string', quick: false };
+
+function setup() {
+  const onTitleChange = vi.fn();
+  const onSendToNewTab = vi.fn();
+  const panel = createTabPanel({ utilities: [count, boom, upper], onTitleChange, onSendToNewTab });
+  document.body.innerHTML = '';
+  document.body.append(panel.el);
+  const $ = (sel) => panel.el.querySelector(sel);
+  const pick = (name) => { $('.util-select').value = name; $('.util-select').dispatchEvent(new Event('change')); };
+  return { panel, $, pick, onTitleChange, onSendToNewTab };
+}
+
+beforeEach(() => {
+  Object.defineProperty(navigator, 'clipboard', { value: { writeText: vi.fn(() => Promise.resolve()) }, configurable: true });
+});
+
+describe('createTabPanel toolbar', () => {
+  it('lists utilities grouped by category after a blank option', () => {
+    const { $ } = setup();
+    const select = $('.util-select');
+    expect(select.options[0].value).toBe('');
+    const groups = [...select.querySelectorAll('optgroup')].map((g) => [g.label, [...g.options].map((o) => o.value)]);
+    expect(groups).toEqual([['lines', ['count']], ['text', ['boom', 'upper']]]);
+  });
+
+  it('selecting a utility retitles the tab and shows description and types', () => {
+    const { $, pick, onTitleChange } = setup();
+    pick('upper');
+    expect(onTitleChange).toHaveBeenLastCalledWith('upper');
+    expect($('.status').textContent).toBe('Uppercase · string → string');
+    pick('');
+    expect(onTitleChange).toHaveBeenLastCalledWith('Untitled');
+    expect($('.status').textContent).toBe('');
+  });
+
+  it('shows the Split lines checkbox only for inputType both', () => {
+    const { $, pick } = setup();
+    expect($('.split-lines').hidden).toBe(true);
+    pick('count');
+    expect($('.split-lines').hidden).toBe(false);
+    pick('upper');
+    expect($('.split-lines').hidden).toBe(true);
+  });
+
+  it('starts stacked and toggles to side by side and back', () => {
+    const { $, panel } = setup();
+    expect(panel.el.classList.contains('stacked')).toBe(true);
+    $('.btn-layout').click();
+    expect(panel.el.classList.contains('side-by-side')).toBe(true);
+    expect(panel.el.classList.contains('stacked')).toBe(false);
+    expect($('.btn-layout').textContent).toBe('Stacked');
+    $('.btn-layout').click();
+    expect(panel.el.classList.contains('stacked')).toBe(true);
+    expect($('.btn-layout').textContent).toBe('Side by side');
+  });
+});
+
+describe('createTabPanel execution', () => {
+  it('asks for a utility when none is selected', () => {
+    const { $ } = setup();
+    $('.input').value = 'abc';
+    $('.btn-execute').click();
+    expect($('.output').value).toBe('Select a utility');
+    expect($('.output').classList.contains('error')).toBe(true);
+  });
+
+  it('runs the selected utility and clears a previous error state', () => {
+    const { $, pick } = setup();
+    $('.btn-execute').click();
+    pick('upper');
+    $('.input').value = 'abc';
+    $('.btn-execute').click();
+    expect($('.output').value).toBe('ABC');
+    expect($('.output').classList.contains('error')).toBe(false);
+  });
+
+  it('shows a thrown error in red', () => {
+    const { $, pick } = setup();
+    pick('boom');
+    $('.btn-execute').click();
+    expect($('.output').value).toBe('kaboom');
+    expect($('.output').classList.contains('error')).toBe(true);
+  });
+
+  it('passes the Split lines choice through for inputType both', () => {
+    const { $, pick } = setup();
+    pick('count');
+    $('.input').value = 'a\nb\nc';
+    $('.btn-execute').click();
+    expect($('.output').value).toBe('one string');
+    $('.chk-split').checked = true;
+    $('.btn-execute').click();
+    expect($('.output').value).toBe('3 lines');
+  });
+
+  it('Ctrl+Enter in the input runs; plain Enter does not', () => {
+    const { $, pick } = setup();
+    pick('upper');
+    $('.input').value = 'x';
+    $('.input').dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter', bubbles: true }));
+    expect($('.output').value).toBe('');
+    $('.input').dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter', ctrlKey: true, bubbles: true }));
+    expect($('.output').value).toBe('X');
+  });
+});
+
+describe('createTabPanel buttons and toggles', () => {
+  it('Clear empties both areas and removes the error state', () => {
+    const { $ } = setup();
+    $('.input').value = 'abc';
+    $('.btn-execute').click();
+    $('.btn-clear').click();
+    expect($('.input').value).toBe('');
+    expect($('.output').value).toBe('');
+    expect($('.output').classList.contains('error')).toBe(false);
+  });
+
+  it('Copy output writes the output to the clipboard', async () => {
+    const { $, pick } = setup();
+    pick('upper');
+    $('.input').value = 'abc';
+    $('.btn-execute').click();
+    $('.btn-copy').click();
+    await Promise.resolve();
+    expect(navigator.clipboard.writeText).toHaveBeenCalledWith('ABC');
+  });
+
+  it('Send output to new tab hands the output to the callback', () => {
+    const { $, pick, onSendToNewTab } = setup();
+    pick('upper');
+    $('.input').value = 'abc';
+    $('.btn-execute').click();
+    $('.btn-send').click();
+    expect(onSendToNewTab).toHaveBeenCalledWith('ABC');
+  });
+
+  it('Wrap checkboxes control each textarea independently, off by default', () => {
+    const { $ } = setup();
+    const [inWrap, outWrap] = $('.areas').querySelectorAll('.chk-wrap');
+    expect($('.input').getAttribute('wrap')).toBe('off');
+    expect($('.output').getAttribute('wrap')).toBe('off');
+    inWrap.checked = true;
+    inWrap.dispatchEvent(new Event('change'));
+    expect($('.input').getAttribute('wrap')).toBe('soft');
+    expect($('.output').getAttribute('wrap')).toBe('off');
+    inWrap.checked = false;
+    inWrap.dispatchEvent(new Event('change'));
+    expect($('.input').getAttribute('wrap')).toBe('off');
+    outWrap.checked = true;
+    outWrap.dispatchEvent(new Event('change'));
+    expect($('.output').getAttribute('wrap')).toBe('soft');
+  });
+
+  it('setInput fills the input area', () => {
+    const { $, panel } = setup();
+    panel.setInput('seed');
+    expect($('.input').value).toBe('seed');
+  });
+});
+```
+
+- [ ] **Step 0c: Run the tests to verify they fail**
+
+Run: `pnpm test`
+Expected: FAIL, cannot resolve `../../src/ui/clipboard.js` and `../../src/ui/tab-panel.js`.
 
 - [ ] **Step 1: Implement `src/ui/clipboard.js`**
 
@@ -1007,7 +1394,7 @@ Run: `pnpm test`
 Expected: all pass.
 
 ```powershell
-git add src/ui/clipboard.js src/ui/tab-panel.js src/main.js
+git add src/ui/clipboard.js src/ui/tab-panel.js src/main.js tests/ui/clipboard.test.js tests/ui/tab-panel.test.js
 git commit -m "Add regular tab panel with execute, layout and wrap toggles"
 ```
 
@@ -1018,10 +1405,120 @@ git commit -m "Add regular tab panel with execute, layout and wrap toggles"
 **Files:**
 - Create: `src/ui/quick-panel.js`
 - Modify: `src/main.js`
+- Test: `tests/ui/quick-panel.test.js`
 
 **Interfaces:**
 - Consumes: `execute` from `src/ui/run.js`; `copyText` from `src/ui/clipboard.js`; `quickUtilities` from `src/registry.js`.
 - Produces: `createQuickPanel({ utilities }) → { el }`.
+
+- [ ] **Step 0a: Write the failing tests**
+
+`tests/ui/quick-panel.test.js`:
+```js
+// @vitest-environment jsdom
+import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { createQuickPanel } from '../../src/ui/quick-panel.js';
+
+const upper = { name: 'upper', description: 'Uppercase', category: 'text', fn: (s) => s.toUpperCase(), inputType: 'string', resultType: 'string', quick: true };
+const boom = { name: 'boom', description: 'Always throws', category: 'text', fn: () => { throw new Error('kaboom'); }, inputType: 'string', resultType: 'string', quick: true };
+
+function setup(utilities = [upper, boom]) {
+  const panel = createQuickPanel({ utilities });
+  document.body.innerHTML = '';
+  document.body.append(panel.el);
+  const rows = [...panel.el.querySelectorAll('.quick-row')];
+  const of = (row) => ({
+    name: row.querySelector('.quick-name'),
+    input: row.querySelector('.input'),
+    output: row.querySelector('.output'),
+    run: row.querySelector('.btn-run'),
+    copy: row.querySelector('.btn-copy'),
+    status: row.querySelector('.status'),
+  });
+  return { panel, rows: rows.map(of) };
+}
+
+beforeEach(() => {
+  Object.defineProperty(navigator, 'clipboard', { value: { writeText: vi.fn(() => Promise.resolve()) }, configurable: true });
+});
+
+describe('createQuickPanel', () => {
+  it('explains itself when no utility is quick', () => {
+    const { panel } = setup([]);
+    expect(panel.el.textContent).toBe('No utilities are marked quick: true.');
+    expect(panel.el.querySelector('.quick-row')).toBeNull();
+  });
+
+  it('renders one row per utility with its name and description tooltip', () => {
+    const { rows } = setup();
+    expect(rows.map((r) => r.name.textContent)).toEqual(['upper', 'boom']);
+    expect(rows[0].name.title).toBe('Uppercase');
+    expect(rows[0].output.readOnly).toBe(true);
+    expect(rows[0].input.getAttribute('wrap')).toBe('off');
+  });
+
+  it('▶ runs the row utility on its own input', () => {
+    const { rows } = setup();
+    rows[0].input.value = 'abc';
+    rows[0].run.click();
+    expect(rows[0].output.value).toBe('ABC');
+    expect(rows[0].output.classList.contains('error')).toBe(false);
+    expect(rows[1].output.value).toBe('');
+  });
+
+  it('shows an error in red and clears it on the next good run', () => {
+    const { rows } = setup();
+    rows[1].run.click();
+    expect(rows[1].output.value).toBe('kaboom');
+    expect(rows[1].output.classList.contains('error')).toBe(true);
+  });
+
+  it('Ctrl+Enter runs the row; plain Enter does not', () => {
+    const { rows } = setup();
+    rows[0].input.value = 'x';
+    rows[0].input.dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter', bubbles: true }));
+    expect(rows[0].output.value).toBe('');
+    rows[0].input.dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter', ctrlKey: true, bubbles: true }));
+    expect(rows[0].output.value).toBe('X');
+  });
+
+  it('grows the input from one row up to four as lines are typed', () => {
+    const { rows } = setup();
+    const { input } = rows[0];
+    expect(input.rows).toBe(1);
+    input.value = 'a\nb\nc';
+    input.dispatchEvent(new Event('input'));
+    expect(input.rows).toBe(3);
+    input.value = 'a\nb\nc\nd\ne\nf\ng\nh';
+    input.dispatchEvent(new Event('input'));
+    expect(input.rows).toBe(4);
+    input.value = '';
+    input.dispatchEvent(new Event('input'));
+    expect(input.rows).toBe(1);
+  });
+
+  it('sizes the output to its result the same way', () => {
+    const multi = { ...upper, name: 'lines', fn: () => 'a\nb\nc\nd\ne' };
+    const { rows } = setup([multi]);
+    rows[0].run.click();
+    expect(rows[0].output.rows).toBe(4);
+  });
+
+  it('Copy writes the row output to the clipboard', async () => {
+    const { rows } = setup();
+    rows[0].input.value = 'abc';
+    rows[0].run.click();
+    rows[0].copy.click();
+    await Promise.resolve();
+    expect(navigator.clipboard.writeText).toHaveBeenCalledWith('ABC');
+  });
+});
+```
+
+- [ ] **Step 0b: Run the tests to verify they fail**
+
+Run: `pnpm test`
+Expected: FAIL, cannot resolve `../../src/ui/quick-panel.js`.
 
 - [ ] **Step 1: Implement `src/ui/quick-panel.js`**
 
@@ -1132,9 +1629,11 @@ Run: `pnpm test`
 Expected: all pass.
 
 ```powershell
-git add src/ui/quick-panel.js src/main.js
+git add src/ui/quick-panel.js src/main.js tests/ui/quick-panel.test.js
 git commit -m "Add Quick tab with one row per quick utility"
 ```
+
+Then run `pnpm coverage`. Expected: every file under `src/` except the excluded two at 100% lines, functions, branches and statements. If a line is uncovered, add a test for it before moving on.
 
 ---
 
