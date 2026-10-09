@@ -1,0 +1,101 @@
+import { execute } from './run.js';
+import { copyText } from './clipboard.js';
+
+/**
+ * One regular tab: toolbar (utility selector, Execute, Copy output, Clear,
+ * Send output to new tab, layout toggle, Split lines, status) over an input
+ * textarea and a read-only output textarea.
+ */
+export function createTabPanel({ utilities, onTitleChange, onSendToNewTab }) {
+  const el = document.createElement('div');
+  el.className = 'panel stacked';
+  el.innerHTML = `
+    <div class="toolbar">
+      <select class="util-select"><option value="">— select utility —</option></select>
+      <button class="btn-execute" title="Ctrl+Enter">Execute</button>
+      <button class="btn-copy">Copy output</button>
+      <button class="btn-clear">Clear</button>
+      <button class="btn-send">Send output to new tab</button>
+      <button class="btn-layout">Side by side</button>
+      <label class="split-lines" hidden><input type="checkbox" class="chk-split"> Split lines</label>
+      <span class="status"></span>
+    </div>
+    <div class="areas">
+      <div class="area">
+        <div class="area-head"><span>Input</span><label><input type="checkbox" class="chk-wrap"> Wrap</label></div>
+        <textarea class="input" wrap="off" spellcheck="false"></textarea>
+      </div>
+      <div class="area">
+        <div class="area-head"><span>Output</span><label><input type="checkbox" class="chk-wrap"> Wrap</label></div>
+        <textarea class="output" wrap="off" spellcheck="false" readonly></textarea>
+      </div>
+    </div>`;
+
+  const $ = (sel) => el.querySelector(sel);
+  const select = $('.util-select');
+  const input = $('.input');
+  const output = $('.output');
+  const status = $('.status');
+  const splitLabel = $('.split-lines');
+  const splitChk = $('.chk-split');
+
+  const groups = new Map();
+  for (const u of utilities) {
+    if (!groups.has(u.category)) {
+      const g = document.createElement('optgroup');
+      g.label = u.category;
+      groups.set(u.category, g);
+      select.append(g);
+    }
+    const o = document.createElement('option');
+    o.value = u.name;
+    o.textContent = u.name;
+    groups.get(u.category).append(o);
+  }
+  const byName = new Map(utilities.map((u) => [u.name, u]));
+  const current = () => byName.get(select.value) ?? null;
+
+  function showResult(res) {
+    output.value = res.ok ? res.output : res.error;
+    output.classList.toggle('error', !res.ok);
+  }
+
+  function run() {
+    const meta = current();
+    if (!meta) { showResult({ ok: false, error: 'Select a utility' }); return; }
+    showResult(execute(meta, input.value, { splitLines: splitChk.checked }));
+  }
+
+  select.addEventListener('change', () => {
+    const meta = current();
+    splitLabel.hidden = meta?.inputType !== 'both';
+    status.textContent = meta ? `${meta.description} · ${meta.inputType} → ${meta.resultType}` : '';
+    onTitleChange(meta ? meta.name : 'Untitled');
+  });
+  $('.btn-execute').addEventListener('click', run);
+  input.addEventListener('keydown', (e) => {
+    if (e.ctrlKey && e.key === 'Enter') { e.preventDefault(); run(); }
+  });
+  $('.btn-clear').addEventListener('click', () => {
+    input.value = '';
+    output.value = '';
+    output.classList.remove('error');
+  });
+  $('.btn-copy').addEventListener('click', () => copyText(output.value, status));
+  $('.btn-send').addEventListener('click', () => onSendToNewTab(output.value));
+  $('.btn-layout').addEventListener('click', (e) => {
+    const side = el.classList.toggle('side-by-side');
+    el.classList.toggle('stacked', !side);
+    e.currentTarget.textContent = side ? 'Stacked' : 'Side by side';
+  });
+  for (const chk of el.querySelectorAll('.chk-wrap')) {
+    chk.addEventListener('change', () => {
+      chk.closest('.area').querySelector('textarea').setAttribute('wrap', chk.checked ? 'soft' : 'off');
+    });
+  }
+
+  return {
+    el,
+    setInput(text) { input.value = text; },
+  };
+}
