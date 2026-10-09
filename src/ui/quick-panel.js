@@ -24,6 +24,7 @@ function createRow(meta) {
     <button class="btn-run" title="Execute (Ctrl+Enter)">▶</button>
     <textarea class="output" rows="1" wrap="off" spellcheck="false" readonly></textarea>
     <button class="btn-copy">Copy</button>
+    <button class="btn-clear" title="Erase input and output">Clear</button>
     <span class="status"></span>`;
 
   const name = row.querySelector('.quick-name');
@@ -46,6 +47,14 @@ function createRow(meta) {
   });
   input.addEventListener('input', () => autosize(input));
   row.querySelector('.btn-copy').addEventListener('click', () => copyText(output.value, status));
+  row.querySelector('.btn-clear').addEventListener('click', () => {
+    input.value = '';
+    output.value = '';
+    output.classList.remove('error');
+    autosize(input);
+    autosize(output);
+    input.focus();
+  });
   return row;
 }
 

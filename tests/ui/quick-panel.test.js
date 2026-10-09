@@ -16,6 +16,7 @@ function setup(utilities = [upper, boom]) {
     output: row.querySelector('.output'),
     run: row.querySelector('.btn-run'),
     copy: row.querySelector('.btn-copy'),
+    clear: row.querySelector('.btn-clear'),
     status: row.querySelector('.status'),
   });
   return { panel, rows: rows.map(of) };
@@ -94,5 +95,22 @@ describe('createQuickPanel', () => {
     rows[0].copy.click();
     await Promise.resolve();
     expect(navigator.clipboard.writeText).toHaveBeenCalledWith('ABC');
+  });
+
+  it('Clear erases the row input and output, resets sizes and the error state', () => {
+    const { rows } = setup();
+    rows[1].run.click();
+    expect(rows[1].output.classList.contains('error')).toBe(true);
+    const { input, output, clear } = rows[1];
+    input.value = 'a\nb\nc';
+    input.dispatchEvent(new Event('input'));
+    output.value = 'x\ny';
+    clear.click();
+    expect(input.value).toBe('');
+    expect(output.value).toBe('');
+    expect(input.rows).toBe(1);
+    expect(output.rows).toBe(1);
+    expect(output.classList.contains('error')).toBe(false);
+    expect(rows[0].input.value).toBe('');
   });
 });
