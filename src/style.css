@@ -1,2 +1,38 @@
 :root { font-family: system-ui, sans-serif; font-size: 13px; color: #223; background: #f0f1f5; }
 html, body, #app { height: 100%; margin: 0; }
+#app { display: flex; flex-direction: column; }
+
+/* tab bar */
+.tab-bar { display: flex; align-items: flex-end; gap: 4px; padding: 6px 8px 0; border-bottom: 1px solid #bbc; background: #e4e6ec; }
+.tab-strip { display: flex; gap: 4px; overflow-x: auto; }
+.tab { display: flex; align-items: center; gap: 6px; padding: 6px 10px; border: 1px solid #bbc; border-bottom: none; border-radius: 6px 6px 0 0; background: #eee; color: #556; cursor: pointer; white-space: nowrap; user-select: none; }
+.tab.active { background: #fff; color: #223; font-weight: 600; }
+.tab-close { border: none; background: none; cursor: pointer; color: #889; padding: 0 2px; font-size: 14px; line-height: 1; }
+.tab-close:hover { color: #c33; }
+.tab-add { border: 1px solid #bbc; background: #fff; border-radius: 6px 6px 0 0; padding: 6px 10px; cursor: pointer; }
+
+/* panels */
+.tab-panels { flex: 1; min-height: 0; display: flex; }
+.panel { flex: 1; display: flex; flex-direction: column; min-height: 0; padding: 8px; gap: 8px; }
+.panel[hidden] { display: none; }
+
+/* regular tab */
+.toolbar { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.toolbar select, .toolbar button { font: inherit; padding: 4px 8px; }
+.status { margin-left: auto; color: #778; font-size: 12px; }
+.areas { flex: 1; min-height: 0; display: flex; gap: 8px; }
+.stacked .areas { flex-direction: column; }
+.side-by-side .areas { flex-direction: row; }
+.area { flex: 1; min-height: 0; min-width: 0; display: flex; flex-direction: column; }
+.area-head { display: flex; justify-content: space-between; font-size: 11px; text-transform: uppercase; color: #778; margin-bottom: 3px; }
+textarea { font-family: ui-monospace, Consolas, monospace; font-size: 12px; border: 1px solid #bbc; border-radius: 4px; padding: 6px 8px; background: #f7f8fb; resize: none; }
+.area textarea { flex: 1; }
+textarea.output { background: #eef6ee; border-color: #9c9; }
+textarea.error { background: #fbeeee; border-color: #c33; }
+
+/* quick tab */
+.quick { overflow-y: auto; }
+.quick-row { display: flex; align-items: center; gap: 8px; padding: 6px 8px; border: 1px solid #ccd; border-radius: 6px; background: #fff; }
+.quick-name { min-width: 150px; font-weight: 600; }
+.quick-row textarea { flex: 1; min-width: 0; }
+.quick-row .status { margin-left: 0; min-width: 60px; }
