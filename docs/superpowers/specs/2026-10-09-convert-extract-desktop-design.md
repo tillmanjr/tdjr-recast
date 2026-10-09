@@ -38,6 +38,7 @@ convert-extract/
       quick-panel.js         the Quick tab: one row per quick utility
       run.js                 shared execute: split/join, error capture
     utilities/
+      _template.js              starting point for new utilities
       hexdump-extract-text.js   moved from repo root
       ...                       one file per utility
   tests/
@@ -75,6 +76,36 @@ export const meta = {
 - `name` is unique across the registry.
 
 The exported list is sorted by `category`, then `name`. The utility dropdown renders one `<optgroup>` per category.
+
+## Utility file conventions
+
+Where utility code lives and how it is shaped, so every addition looks the same.
+
+**Location.** All utilities live flat in `src/utilities/`, one file per utility. No subfolders: `meta.category` is the grouping, not the directory tree, so a utility can change category without moving.
+
+**File name.** kebab-case, `.js` extension, describing what the utility does in verb or "from → to" form: `hexdump-extract-text.js`, `base64-decode.js`, `trim-lines.js`. The exported function is the same name in camelCase: `hexdumpExtractText`, `base64Decode`, `trimLines`. The test file mirrors it: `tests/utilities/hexdump-extract-text.test.js`.
+
+**File shape.** Top to bottom:
+
+1. A doc comment stating what the utility does, the input forms it accepts, and what it returns.
+2. Private helpers, not exported.
+3. The named export of the function, with a JSDoc signature. First parameter is the input (string or array of strings); second is an options object with defaults, reserved for `meta.args` later.
+4. `export const meta = { ... }` as described under Registry contract.
+5. `export default` of the function.
+
+**Rules.**
+
+- No imports from the app (`src/ui`, `src/registry.js`, `src/main.js`). A utility may import another utility if it genuinely reuses it.
+- No npm dependencies unless unavoidable; the function must run in both the browser and Node.
+- Synchronous. Throw an `Error` with a readable message on bad input; the app shows it.
+- Return exactly what `meta.resultType` declares. Never append a trailing newline to a string result.
+
+**Adding a utility.** Four steps, and the app picks it up on the next reload:
+
+1. Copy `src/utilities/_template.js` to `src/utilities/<kebab-name>.js` and fill it in. The template is excluded from the registry by name.
+2. Add one line to `src/registry.js`: `import * as hexdumpExtractText from './utilities/hexdump-extract-text.js';` and append it to the modules array.
+3. Add `tests/utilities/<kebab-name>.test.js` with at least one case per input form.
+4. Run `pnpm test`. The registry test fails if the `meta` is malformed.
 
 ## Input and output mapping
 
