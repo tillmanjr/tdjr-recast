@@ -55,7 +55,7 @@ Spec: `docs/superpowers/specs/2026-10-09-convert-extract-desktop-design.md`
 **Interfaces:**
 - Produces: `pnpm dev` (Vite on http://localhost:5173), `pnpm test` (Vitest, `tests/**/*.test.js`), `pnpm tauri dev`, `pnpm tauri build`.
 
-- [ ] **Step 1: Create `package.json`**
+- [x] **Step 1: Create `package.json`**
 
 ```json
 {
@@ -84,7 +84,7 @@ Spec: `docs/superpowers/specs/2026-10-09-convert-extract-desktop-design.md`
 }
 ```
 
-- [ ] **Step 2: Create `vite.config.js`**
+- [x] **Step 2: Create `vite.config.js`**
 
 ```js
 import { defineConfig } from 'vite';
@@ -107,7 +107,7 @@ export default defineConfig({
 
 UI test files opt into the DOM with a `// @vitest-environment jsdom` comment on their first line; everything else runs in Node. `src/main.js` is excluded from coverage because it only wires modules together at load time; `_template.js` is a copy source, not code.
 
-- [ ] **Step 3: Create `index.html`**
+- [x] **Step 3: Create `index.html`**
 
 ```html
 <!doctype html>
@@ -125,7 +125,7 @@ UI test files opt into the DOM with a `// @vitest-environment jsdom` comment on 
 </html>
 ```
 
-- [ ] **Step 4: Create placeholder `src/main.js` and `src/style.css`**
+- [x] **Step 4: Create placeholder `src/main.js` and `src/style.css`**
 
 `src/main.js`:
 ```js
@@ -138,7 +138,7 @@ document.getElementById('app').textContent = 'convert-extract';
 html, body, #app { height: 100%; margin: 0; }
 ```
 
-- [ ] **Step 5: Install and verify Vite + Vitest**
+- [x] **Step 5: Install and verify Vite + Vitest**
 
 Run: `pnpm install`
 Expected: lockfile written, no peer-dependency errors. (If pnpm reports a Vite/Vitest peer mismatch, pin `vitest` to the newest version whose peer range includes Vite 8 and re-run.)
@@ -149,7 +149,7 @@ Expected: `dist/index.html` produced, "✓ built in" line.
 Run: `pnpm exec vitest run --passWithNoTests`
 Expected: "No test files found" and exit code 0.
 
-- [ ] **Step 6: Initialize Tauri non-interactively**
+- [x] **Step 6: Initialize Tauri non-interactively**
 
 Run:
 ```powershell
@@ -157,7 +157,7 @@ pnpm tauri init --ci -A convert-extract -W convert-extract -D ../dist -P http://
 ```
 Expected: `src-tauri/` created with `Cargo.toml`, `tauri.conf.json`, `src/main.rs`, `src/lib.rs`, `capabilities/default.json`.
 
-- [ ] **Step 7: Set identifier and window size in `src-tauri/tauri.conf.json`**
+- [x] **Step 7: Set identifier and window size in `src-tauri/tauri.conf.json`**
 
 Open the file and set these keys (keep everything else the generator wrote):
 
@@ -171,14 +171,14 @@ and inside `app.windows[0]`:
 "height": 750
 ```
 
-- [ ] **Step 8: Add the window-state plugin**
+- [x] **Step 8: Add the window-state plugin**
 
 Run: `pnpm tauri add window-state`
 Expected: `src-tauri/Cargo.toml` gains `tauri-plugin-window-state`, `src-tauri/src/lib.rs` gains `.plugin(tauri_plugin_window_state::Builder::default().build())`, `src-tauri/capabilities/default.json` gains `"window-state:default"`, and `package.json` gains `@tauri-apps/plugin-window-state`.
 
 Verify: `grep -n window_state src-tauri/src/lib.rs` prints the plugin line. If the capability line is missing, add `"window-state:default"` to the `permissions` array in `src-tauri/capabilities/default.json`.
 
-- [ ] **Step 9: Compile the Rust side once**
+- [x] **Step 9: Compile the Rust side once**
 
 Run (first run downloads crates, allow 10 minutes):
 ```powershell
@@ -186,14 +186,14 @@ cd src-tauri; cargo check; cd ..
 ```
 Expected: ends with `Finished` and no errors.
 
-- [ ] **Step 10: Extend `.gitignore`**
+- [x] **Step 10: Extend `.gitignore`**
 
 Append to `.gitignore`:
 ```
 src-tauri/gen/schemas/
 ```
 
-- [ ] **Step 11: Commit**
+- [x] **Step 11: Commit**
 
 ```powershell
 git add -A
@@ -211,7 +211,7 @@ git commit -m "Scaffold Vite, Vitest and Tauri 2 with window-state plugin"
 **Interfaces:**
 - Produces: `execute(meta, text, { splitLines = false } = {}) → { ok: true, output: string } | { ok: false, error: string }`. `meta` needs `name`, `fn`, `inputType`, `resultType`.
 
-- [ ] **Step 1: Write the failing tests**
+- [x] **Step 1: Write the failing tests**
 
 `tests/run.test.js`:
 ```js
@@ -292,12 +292,12 @@ describe('execute output mapping', () => {
 });
 ```
 
-- [ ] **Step 2: Run the tests to verify they fail**
+- [x] **Step 2: Run the tests to verify they fail**
 
 Run: `pnpm test`
 Expected: FAIL, "Failed to resolve import ../src/ui/run.js" or similar module-not-found error.
 
-- [ ] **Step 3: Implement `src/ui/run.js`**
+- [x] **Step 3: Implement `src/ui/run.js`**
 
 ```js
 /**
@@ -342,12 +342,12 @@ function describe(v) {
 }
 ```
 
-- [ ] **Step 4: Run the tests to verify they pass**
+- [x] **Step 4: Run the tests to verify they pass**
 
 Run: `pnpm test`
 Expected: `tests/run.test.js` 12 passed.
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```powershell
 git add src/ui/run.js tests/run.test.js
@@ -366,7 +366,7 @@ git commit -m "Add execute(): map textarea text to utility input and back"
 **Interfaces:**
 - Produces: `src/utilities/hexdump-extract-text.js` exporting `hexdumpExtractText(input, { encoding })` and `meta` (name `'hexdump → text'`, category `'hex'`, `string → string`, `quick: true`).
 
-- [ ] **Step 1: Write the failing utility tests**
+- [x] **Step 1: Write the failing utility tests**
 
 `tests/utilities/hexdump-extract-text.test.js`:
 ```js
@@ -415,12 +415,12 @@ describe('meta', () => {
 });
 ```
 
-- [ ] **Step 2: Run the tests to verify they fail**
+- [x] **Step 2: Run the tests to verify they fail**
 
 Run: `pnpm test`
 Expected: FAIL, cannot resolve `../../src/utilities/hexdump-extract-text.js`.
 
-- [ ] **Step 3: Move the utility and add `meta`**
+- [x] **Step 3: Move the utility and add `meta`**
 
 Run: `git mv hexdump-extract-text.js src/utilities/hexdump-extract-text.js`
 
@@ -449,12 +449,12 @@ export default hexdumpExtractText;
 
 (The commented-out CLI block at the bottom of the original file is removed; the utility must stay free of Node-only code.)
 
-- [ ] **Step 4: Run the tests to verify they pass**
+- [x] **Step 4: Run the tests to verify they pass**
 
 Run: `pnpm test`
 Expected: `tests/utilities/hexdump-extract-text.test.js` 7 passed, `tests/run.test.js` 9 passed.
 
-- [ ] **Step 5: Create `src/utilities/_template.js`**
+- [x] **Step 5: Create `src/utilities/_template.js`**
 
 ```js
 /**
@@ -490,7 +490,7 @@ export const meta = {
 export default myUtility;
 ```
 
-- [ ] **Step 6: Commit**
+- [x] **Step 6: Commit**
 
 ```powershell
 git add -A
@@ -509,7 +509,7 @@ git commit -m "Move hexdump utility under src/utilities with meta; add utility t
 - Consumes: `src/utilities/hexdump-extract-text.js` `meta`.
 - Produces: `validate(meta, file)` (throws `Error` naming the file), `buildRegistry({ [file]: module })` (returns sorted `meta[]`), `utilities` (sorted list), `quickUtilities` (those with `quick: true`), constants `INPUT_TYPES`, `RESULT_TYPES`, `DESCRIPTION_MAX`.
 
-- [ ] **Step 1: Write the failing tests**
+- [x] **Step 1: Write the failing tests**
 
 `tests/registry.test.js`:
 ```js
@@ -596,12 +596,12 @@ describe('real registry', () => {
 });
 ```
 
-- [ ] **Step 2: Run the tests to verify they fail**
+- [x] **Step 2: Run the tests to verify they fail**
 
 Run: `pnpm test`
 Expected: FAIL, cannot resolve `../src/registry.js`.
 
-- [ ] **Step 3: Implement `src/registry.js`**
+- [x] **Step 3: Implement `src/registry.js`**
 
 ```js
 /**
@@ -655,12 +655,12 @@ export const utilities = buildRegistry(modules);
 export const quickUtilities = utilities.filter((u) => u.quick);
 ```
 
-- [ ] **Step 4: Run the tests to verify they pass**
+- [x] **Step 4: Run the tests to verify they pass**
 
 Run: `pnpm test`
 Expected: 3 files, all passed (registry 15, run 12, hexdump 7).
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```powershell
 git add src/registry.js tests/registry.test.js
@@ -679,7 +679,7 @@ git commit -m "Add utility registry with meta validation"
 **Interfaces:**
 - Produces: `createTabBar(root) → { add({ title, closable, panelEl }) → id, activate(id), setTitle(id, title), close(id), onAdd(fn) }`. Panels are shown and hidden with the `hidden` attribute. Closing the active tab activates its left neighbour.
 
-- [ ] **Step 0a: Write the failing tests**
+- [x] **Step 0a: Write the failing tests**
 
 `tests/ui/tabs.test.js`:
 ```js
@@ -799,12 +799,12 @@ describe('createTabBar', () => {
 });
 ```
 
-- [ ] **Step 0b: Run the tests to verify they fail**
+- [x] **Step 0b: Run the tests to verify they fail**
 
 Run: `pnpm test`
 Expected: FAIL, cannot resolve `../../src/ui/tabs.js`.
 
-- [ ] **Step 1: Implement `src/ui/tabs.js`**
+- [x] **Step 1: Implement `src/ui/tabs.js`**
 
 ```js
 /**
@@ -889,7 +889,7 @@ export function createTabBar(root) {
 }
 ```
 
-- [ ] **Step 2: Replace `src/main.js` with a skeleton that uses placeholder panels**
+- [x] **Step 2: Replace `src/main.js` with a skeleton that uses placeholder panels**
 
 ```js
 import { createTabBar } from './ui/tabs.js';
@@ -909,7 +909,7 @@ bar.onAdd(() => bar.add({ title: 'Untitled', panelEl: placeholder('Regular tab (
 bar.add({ title: 'Untitled', panelEl: placeholder('Regular tab (coming in Task 6)') });
 ```
 
-- [ ] **Step 3: Replace `src/style.css` with the full stylesheet**
+- [x] **Step 3: Replace `src/style.css` with the full stylesheet**
 
 ```css
 :root { font-family: system-ui, sans-serif; font-size: 13px; color: #223; background: #f0f1f5; }
@@ -952,7 +952,7 @@ textarea.error { background: #fbeeee; border-color: #c33; }
 .quick-row .status { margin-left: 0; min-width: 60px; }
 ```
 
-- [ ] **Step 4: Verify in the browser**
+- [ ] **Step 4: Verify in the browser** _(not done in a browser; covered by the jsdom suites in tests/ui and tests/main.test.js. Manual pass pending.)_
 
 Run: `pnpm dev` and open http://localhost:5173 in a browser.
 Check each:
@@ -964,7 +964,7 @@ Check each:
 
 Stop the dev server (Ctrl+C).
 
-- [ ] **Step 5: Run tests and commit**
+- [x] **Step 5: Run tests and commit**
 
 Run: `pnpm test`
 Expected: all pass, `tests/ui/tabs.test.js` 11 passed.
@@ -987,7 +987,7 @@ git commit -m "Add tab bar and app skeleton"
 - Consumes: `execute` from `src/ui/run.js`; `utilities` from `src/registry.js`; `createTabBar` from `src/ui/tabs.js`.
 - Produces: `copyText(text, statusEl) → Promise<void>`; `createTabPanel({ utilities, onTitleChange, onSendToNewTab }) → { el, setInput(text) }`.
 
-- [ ] **Step 0a: Write the failing clipboard tests**
+- [x] **Step 0a: Write the failing clipboard tests**
 
 `tests/ui/clipboard.test.js`:
 ```js
@@ -1033,7 +1033,7 @@ describe('copyText', () => {
 });
 ```
 
-- [ ] **Step 0b: Write the failing tab-panel tests**
+- [x] **Step 0b: Write the failing tab-panel tests**
 
 `tests/ui/tab-panel.test.js`:
 ```js
@@ -1205,12 +1205,12 @@ describe('createTabPanel buttons and toggles', () => {
 });
 ```
 
-- [ ] **Step 0c: Run the tests to verify they fail**
+- [x] **Step 0c: Run the tests to verify they fail**
 
 Run: `pnpm test`
 Expected: FAIL, cannot resolve `../../src/ui/clipboard.js` and `../../src/ui/tab-panel.js`.
 
-- [ ] **Step 1: Implement `src/ui/clipboard.js`**
+- [x] **Step 1: Implement `src/ui/clipboard.js`**
 
 ```js
 /** Copy text to the clipboard and show a short status message in `statusEl`. */
@@ -1230,7 +1230,7 @@ function flash(el, msg) {
 }
 ```
 
-- [ ] **Step 2: Implement `src/ui/tab-panel.js`**
+- [x] **Step 2: Implement `src/ui/tab-panel.js`**
 
 ```js
 import { execute } from './run.js';
@@ -1336,7 +1336,7 @@ export function createTabPanel({ utilities, onTitleChange, onSendToNewTab }) {
 }
 ```
 
-- [ ] **Step 3: Update `src/main.js` to use real regular tabs**
+- [x] **Step 3: Update `src/main.js` to use real regular tabs**
 
 ```js
 import { utilities } from './registry.js';
@@ -1370,7 +1370,7 @@ bar.onAdd(() => newTab());
 newTab();
 ```
 
-- [ ] **Step 4: Verify in the browser**
+- [ ] **Step 4: Verify in the browser** _(not done in a browser; covered by the jsdom suites in tests/ui and tests/main.test.js. Manual pass pending.)_
 
 Run: `pnpm dev`, open http://localhost:5173.
 Check each:
@@ -1388,7 +1388,7 @@ Check each:
 
 Stop the dev server.
 
-- [ ] **Step 5: Run tests and commit**
+- [x] **Step 5: Run tests and commit**
 
 Run: `pnpm test`
 Expected: all pass.
@@ -1411,7 +1411,7 @@ git commit -m "Add regular tab panel with execute, layout and wrap toggles"
 - Consumes: `execute` from `src/ui/run.js`; `copyText` from `src/ui/clipboard.js`; `quickUtilities` from `src/registry.js`.
 - Produces: `createQuickPanel({ utilities }) → { el }`.
 
-- [ ] **Step 0a: Write the failing tests**
+- [x] **Step 0a: Write the failing tests**
 
 `tests/ui/quick-panel.test.js`:
 ```js
@@ -1515,12 +1515,12 @@ describe('createQuickPanel', () => {
 });
 ```
 
-- [ ] **Step 0b: Run the tests to verify they fail**
+- [x] **Step 0b: Run the tests to verify they fail**
 
 Run: `pnpm test`
 Expected: FAIL, cannot resolve `../../src/ui/quick-panel.js`.
 
-- [ ] **Step 1: Implement `src/ui/quick-panel.js`**
+- [x] **Step 1: Implement `src/ui/quick-panel.js`**
 
 ```js
 import { execute } from './run.js';
@@ -1581,7 +1581,7 @@ function autosize(ta) {
 }
 ```
 
-- [ ] **Step 2: Update `src/main.js` to use the real Quick panel**
+- [x] **Step 2: Update `src/main.js` to use the real Quick panel**
 
 ```js
 import { utilities, quickUtilities } from './registry.js';
@@ -1609,7 +1609,7 @@ bar.onAdd(() => newTab());
 newTab();
 ```
 
-- [ ] **Step 3: Verify in the browser**
+- [ ] **Step 3: Verify in the browser** _(not done in a browser; covered by the jsdom suites in tests/ui and tests/main.test.js. Manual pass pending.)_
 
 Run: `pnpm dev`, open http://localhost:5173, click the Quick tab.
 Check each:
@@ -1623,7 +1623,7 @@ Check each:
 
 Stop the dev server.
 
-- [ ] **Step 4: Run tests and commit**
+- [x] **Step 4: Run tests and commit**
 
 Run: `pnpm test`
 Expected: all pass.
@@ -1646,12 +1646,12 @@ Then run `pnpm coverage`. Expected: every file under `src/` except the excluded 
 - Consumes: everything above.
 - Produces: a working `pnpm tauri dev` and a built executable under `src-tauri/target/release/`.
 
-- [ ] **Step 1: Run the app in Tauri**
+- [x] **Step 1: Run the app in Tauri**
 
 Run: `pnpm tauri dev` (first run compiles Rust, allow several minutes).
 Expected: a window titled "convert-extract" opens showing the Quick tab and an "Untitled" tab.
 
-- [ ] **Step 2: Repeat the Task 6 and Task 7 checklists inside the Tauri window**
+- [ ] **Step 2: Repeat the Task 6 and Task 7 checklists inside the Tauri window** _(pending: needs a person at the Tauri window)_
 
 Pay particular attention to Copy. If the status reads "Copy failed: ..." in the Tauri window, do the following and re-test:
 
@@ -1680,19 +1680,19 @@ function flash(el, msg) {
 ```
 and confirm `src-tauri/capabilities/default.json` lists `"clipboard-manager:allow-write-text"`.
 
-- [ ] **Step 3: Verify window state persists**
+- [ ] **Step 3: Verify window state persists** _(pending: needs a person at the Tauri window)_
 
 Resize and move the window, close it, run `pnpm tauri dev` again.
 Expected: the window reopens at the same size and position. Tabs are back to Quick plus one empty "Untitled" (no text restored).
 
-- [ ] **Step 4: Build**
+- [x] **Step 4: Build**
 
 Run: `pnpm tauri build`
 Expected: ends with "Finished" and lists bundle paths under `src-tauri/target/release/bundle/` (NSIS and/or MSI installer) plus `src-tauri/target/release/convert-extract.exe`.
 
 Launch `src-tauri/target/release/convert-extract.exe` directly and confirm the Quick tab decodes `68656c6c6f` to `hello`.
 
-- [ ] **Step 5: Run tests and commit**
+- [x] **Step 5: Run tests and commit**
 
 Run: `pnpm test`
 Expected: all pass.

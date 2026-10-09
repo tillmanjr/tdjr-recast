@@ -2,6 +2,7 @@
   "$schema": "../node_modules/@tauri-apps/cli/config.schema.json",
   "productName": "convert-extract",
   "version": "0.1.0",
+  "mainBinaryName": "convert-extract",
   "identifier": "dev.xenomorph9.convert-extract",
   "build": {
     "frontendDist": "../dist",
