@@ -165,11 +165,14 @@ export function hexdumpExtractText(input, { encoding = 'auto' } = {}) {
   return decodeDotted(trimmed);
 }
 
-export default hexdumpExtractText;
+export const meta = {
+  name: 'hexdump → text',
+  description: 'Decode hex dumps to text',
+  category: 'hex',
+  fn: hexdumpExtractText,
+  inputType: 'string',
+  resultType: 'string',
+  quick: true,
+};
 
-// CLI:  node extractText.js dump.txt   |   cat dump.txt | node extractText.js
-// if (typeof process !== 'undefined' && process.argv?.[1]?.endsWith('extractText.js')) {
-//   const fs = await import('node:fs');
-//   const src = process.argv[2] ? fs.readFileSync(process.argv[2], 'utf8') : fs.readFileSync(0, 'utf8');
-//   process.stdout.write(extractText(src) + '\n');
-// }
+export default hexdumpExtractText;
