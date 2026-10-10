@@ -2,9 +2,11 @@ import { utilities, quickUtilities } from './registry.js';
 import { createTabBar } from './ui/tabs.js';
 import { createTabPanel } from './ui/tab-panel.js';
 import { createQuickPanel } from './ui/quick-panel.js';
+import { createThemeToggle } from './ui/theme.js';
 
 const root = document.getElementById('app');
 const bar = createTabBar(root);
+bar.addTool(createThemeToggle().el);
 
 function newTab(initialInput = '') {
   let id;

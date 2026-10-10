@@ -13,7 +13,9 @@ export function createTabBar(root) {
   addBtn.className = 'tab-add';
   addBtn.textContent = '+';
   addBtn.title = 'New tab';
-  bar.append(strip, addBtn);
+  const tools = document.createElement('div');
+  tools.className = 'tab-tools';
+  bar.append(strip, addBtn, tools);
 
   const panels = document.createElement('div');
   panels.className = 'tab-panels';
@@ -76,5 +78,9 @@ export function createTabBar(root) {
 
   addBtn.addEventListener('click', () => addHandler());
 
-  return { add, activate, setTitle, close, onAdd(fn) { addHandler = fn; } };
+  return {
+    add, activate, setTitle, close,
+    onAdd(fn) { addHandler = fn; },
+    addTool(el) { tools.append(el); },
+  };
 }

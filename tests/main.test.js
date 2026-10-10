@@ -45,4 +45,13 @@ describe('app boot', () => {
     expect(panels.at(-1).querySelector('.input').value).toBe('{"msgs":');
     expect(activeTitle()).toBe('Untitled');
   });
+
+  it('offers a theme toggle in the tab bar that flips the document theme', () => {
+    const btn = document.querySelector('.tab-bar .tab-tools .btn-theme');
+    const before = document.documentElement.dataset.theme;
+    btn.click();
+    expect(document.documentElement.dataset.theme).not.toBe(before);
+    btn.click();
+    expect(document.documentElement.dataset.theme).toBe(before);
+  });
 });

@@ -111,4 +111,14 @@ describe('createTabBar', () => {
     root.querySelector('.tab-add').click();
     expect(onAdd).toHaveBeenCalledTimes(1);
   });
+
+  it('addTool() places an element in the tools slot at the right of the bar', () => {
+    const { root, bar } = setup();
+    const btn = document.createElement('button');
+    btn.textContent = 'T';
+    bar.addTool(btn);
+    const tools = root.querySelector('.tab-bar > .tab-tools');
+    expect(tools.lastElementChild).toBe(btn);
+    expect(root.querySelector('.tab-bar').lastElementChild).toBe(tools);
+  });
 });
