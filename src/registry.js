@@ -84,8 +84,8 @@ export function validate(meta, file) {
   return meta;
 }
 
-/** Within a category: utilities with a sortOrder first (ascending), then the rest; ties by name. */
-function compare(a, b) {
+/** Category, then within it: utilities with a sortOrder first (ascending), then the rest; ties by name. */
+export function compare(a, b) {
   return a.category.localeCompare(b.category)
     || (a.sortOrder ?? Infinity) - (b.sortOrder ?? Infinity)
     || a.name.localeCompare(b.name);
@@ -106,3 +106,5 @@ export function buildRegistry(mods) {
 
 export const utilities = buildRegistry(modules);
 export const quickUtilities = utilities.filter((u) => u.quick);
+/** The same metas keyed by file name, the stable id sequences refer to. */
+export const utilitiesByFile = new Map(Object.entries(modules).map(([file, mod]) => [file, mod.meta]));

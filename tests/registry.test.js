@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { validate, buildRegistry, utilities, quickUtilities, DESCRIPTION_MAX } from '../src/registry.js';
+import { validate, buildRegistry, utilities, quickUtilities, utilitiesByFile, compare, DESCRIPTION_MAX } from '../src/registry.js';
 
 const good = () => ({
   name: 'upper', description: 'Uppercase', category: 'text',
@@ -101,6 +101,18 @@ describe('buildRegistry', () => {
       'a.js': { meta: good() },
       'b.js': { meta: good() },
     })).toThrow('Utility b.js: duplicate name "upper"');
+  });
+
+  it('exposes the metas keyed by file name, matching the sorted list', () => {
+    expect(utilitiesByFile.get('trim-end.js').name).toBe('Trim end');
+    expect(utilitiesByFile.size).toBe(utilities.length);
+    expect(new Set(utilitiesByFile.values())).toEqual(new Set(utilities));
+  });
+
+  it('exports the ordering rule so other lists can sort the same way', () => {
+    const a = { category: 'b', name: 'x' };
+    const b = { category: 'a', name: 'y' };
+    expect([a, b].sort(compare)).toEqual([b, a]);
   });
 
   it('rejects a module value that is not an object', () => {
