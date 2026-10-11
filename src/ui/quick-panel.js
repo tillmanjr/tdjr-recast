@@ -12,26 +12,33 @@ const MAX_ROWS = 4;
 export function createQuickPanel({ utilities, onRun = () => {} }) {
   const el = document.createElement('div');
   el.className = 'panel quick';
-  if (utilities.length === 0) {
-    el.textContent = 'No utilities are marked quick: true.';
-    return { el };
-  }
-  const groups = new Map();
-  for (const meta of utilities) {
-    if (!groups.has(meta.category)) {
-      const group = document.createElement('details');
-      group.className = 'quick-group';
-      group.open = true;
-      const title = document.createElement('summary');
-      title.className = 'quick-group-title';
-      title.textContent = meta.category;
-      group.append(title);
-      el.append(group);
-      groups.set(meta.category, group);
+
+  /** Replace every group and row with ones for `list`; row contents start fresh. */
+  function setUtilities(list) {
+    el.replaceChildren();
+    if (list.length === 0) {
+      el.textContent = 'No utilities are marked quick: true.';
+      return;
     }
-    groups.get(meta.category).append(createRow(meta, onRun));
+    const groups = new Map();
+    for (const meta of list) {
+      if (!groups.has(meta.category)) {
+        const group = document.createElement('details');
+        group.className = 'quick-group';
+        group.open = true;
+        const title = document.createElement('summary');
+        title.className = 'quick-group-title';
+        title.textContent = meta.category;
+        group.append(title);
+        el.append(group);
+        groups.set(meta.category, group);
+      }
+      groups.get(meta.category).append(createRow(meta, onRun));
+    }
   }
-  return { el };
+
+  setUtilities(utilities);
+  return { el, setUtilities };
 }
 
 function createRow(meta, onRun) {

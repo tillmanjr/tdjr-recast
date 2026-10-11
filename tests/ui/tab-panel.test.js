@@ -30,6 +30,32 @@ describe('createTabPanel toolbar', () => {
     expect(groups).toEqual([['lines', ['count']], ['text', ['boom', 'upper']]]);
   });
 
+  it('refreshUtilities() rebuilds the dropdown, keeping the current choice when it still exists', () => {
+    const { panel, $, pick, onTitleChange } = setup();
+    pick('upper');
+    const extra = { ...upper, name: 'shout', category: 'sequence' };
+    panel.refreshUtilities([count, upper, extra]);
+    const groups = [...$('.util-select').querySelectorAll('optgroup')].map((g) => [g.label, [...g.querySelectorAll('option')].map((o) => o.value)]);
+    expect(groups).toEqual([['lines', ['count']], ['text', ['upper']], ['sequence', ['shout']]]);
+    expect($('.util-select').value).toBe('upper');
+    expect(onTitleChange).toHaveBeenLastCalledWith('upper');
+    pick('shout');
+    $('.input').value = 'abc';
+    $('.btn-execute').click();
+    expect($('.output').value).toBe('ABC');
+  });
+
+  it('refreshUtilities() drops the selection when its utility is gone', () => {
+    const { panel, $, pick, onTitleChange } = setup();
+    pick('count');
+    expect($('.split-lines').hidden).toBe(false);
+    panel.refreshUtilities([upper]);
+    expect($('.util-select').value).toBe('');
+    expect(onTitleChange).toHaveBeenLastCalledWith('Untitled');
+    expect($('.status').textContent).toBe('');
+    expect($('.split-lines').hidden).toBe(true);
+  });
+
   it('selecting a utility retitles the tab and shows description and types', () => {
     const { $, pick, onTitleChange } = setup();
     pick('upper');

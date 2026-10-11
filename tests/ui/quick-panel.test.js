@@ -169,6 +169,23 @@ describe('createQuickPanel', () => {
     expect(onRun).toHaveBeenCalledTimes(2);
   });
 
+  it('setUtilities() re-renders the groups and rows for a new list', () => {
+    const onRun = vi.fn();
+    const panel = createQuickPanel({ utilities: [upper, boom], onRun });
+    const hexA = { ...upper, name: 'hex a', category: 'hex' };
+    panel.setUtilities([hexA]);
+    expect([...panel.el.querySelectorAll('.quick-group-title')].map((e) => e.textContent)).toEqual(['hex']);
+    expect([...panel.el.querySelectorAll('.quick-name')].map((e) => e.textContent)).toEqual(['hex a']);
+    const row = panel.el.querySelector('.quick-row');
+    row.querySelector('.input').value = 'q';
+    row.querySelector('.btn-run').click();
+    expect(onRun).toHaveBeenCalledWith({ meta: hexA, input: 'q', output: 'Q', ok: true });
+    panel.setUtilities([]);
+    expect(panel.el.textContent).toBe('No utilities are marked quick: true.');
+    panel.setUtilities([upper]);
+    expect(panel.el.querySelectorAll('.quick-row')).toHaveLength(1);
+  });
+
   it('shows meta.quickPlaceholder in the input when set, and nothing otherwise', () => {
     const dated = { ...upper, name: 'dated', quickPlaceholder: 'year, month, day' };
     const { rows } = setup([dated, upper]);

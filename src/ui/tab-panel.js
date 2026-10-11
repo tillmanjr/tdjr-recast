@@ -40,21 +40,36 @@ export function createTabPanel({ utilities, onTitleChange, onSendToNewTab }) {
   const splitLabel = $('.split-lines');
   const splitChk = $('.chk-split');
 
-  const groups = new Map();
-  for (const u of utilities) {
-    if (!groups.has(u.category)) {
-      const g = document.createElement('optgroup');
-      g.label = u.category;
-      groups.set(u.category, g);
-      select.append(g);
-    }
-    const o = document.createElement('option');
-    o.value = u.name;
-    o.textContent = u.name;
-    groups.get(u.category).append(o);
-  }
-  const byName = new Map(utilities.map((u) => [u.name, u]));
+  let byName = new Map();
   const current = () => byName.get(select.value) ?? null;
+
+  /** Rebuild the option groups for `list`, keeping the current choice if it is still there. */
+  function fillSelect(list) {
+    const keep = select.value;
+    for (const g of select.querySelectorAll('optgroup')) g.remove();
+    const groups = new Map();
+    for (const u of list) {
+      if (!groups.has(u.category)) {
+        const g = document.createElement('optgroup');
+        g.label = u.category;
+        groups.set(u.category, g);
+        select.append(g);
+      }
+      const o = document.createElement('option');
+      o.value = u.name;
+      o.textContent = u.name;
+      groups.get(u.category).append(o);
+    }
+    byName = new Map(list.map((u) => [u.name, u]));
+    select.value = byName.has(keep) ? keep : '';
+  }
+
+  function onSelect() {
+    const meta = current();
+    splitLabel.hidden = meta?.inputType !== 'both';
+    status.textContent = meta ? `${meta.description} · ${meta.inputType} → ${meta.resultType}` : '';
+    onTitleChange(meta ? meta.name : 'Untitled');
+  }
 
   function showResult(res) {
     output.value = res.ok ? res.output : res.error;
@@ -67,12 +82,8 @@ export function createTabPanel({ utilities, onTitleChange, onSendToNewTab }) {
     showResult(execute(meta, input.value, { splitLines: splitChk.checked }));
   }
 
-  select.addEventListener('change', () => {
-    const meta = current();
-    splitLabel.hidden = meta?.inputType !== 'both';
-    status.textContent = meta ? `${meta.description} · ${meta.inputType} → ${meta.resultType}` : '';
-    onTitleChange(meta ? meta.name : 'Untitled');
-  });
+  select.addEventListener('change', onSelect);
+  fillSelect(utilities);
   const executeBtn = $('.btn-execute');
   executeBtn.addEventListener('click', run);
   input.addEventListener('keydown', (e) => {
@@ -99,5 +110,6 @@ export function createTabPanel({ utilities, onTitleChange, onSendToNewTab }) {
   return {
     el,
     setInput(text) { input.value = text; },
+    refreshUtilities(list) { fillSelect(list); onSelect(); },
   };
 }
