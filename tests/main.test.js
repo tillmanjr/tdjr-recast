@@ -16,9 +16,11 @@ describe('app boot', () => {
     expect(document.querySelectorAll('.tab')[0].querySelector('.tab-close')).toBeNull();
   });
 
-  it('lists only the quick utilities as Quick rows', () => {
+  it('lists only the quick utilities as Quick rows, hexdump excluded', () => {
     const names = [...document.querySelectorAll('.quick-row .quick-name')].map((e) => e.textContent);
-    expect(names).toEqual(['date → week of the year']);
+    expect(names).toHaveLength(10);
+    expect(names[0]).toBe('date → week of the year');
+    expect(names).not.toContain('hexdump → text');
   });
 
   it('runs a Quick row end to end and shows its placeholder', () => {

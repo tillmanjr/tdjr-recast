@@ -81,8 +81,21 @@ describe('buildRegistry', () => {
 });
 
 describe('real registry', () => {
-  it('contains both utilities and lists only the week utility as quick', () => {
-    expect(utilities.map((u) => u.name)).toEqual(['date → week of the year', 'hexdump → text']);
-    expect(quickUtilities.map((u) => u.name)).toEqual(['date → week of the year']);
+  it('lists every utility by category then name, and all but hexdump as quick', () => {
+    const all = [
+      'date → week of the year',
+      'hexdump → text',
+      'Chrome/WebKit → date',
+      'CoreData → date',
+      'SQLite Julian → date',
+      'timestamp → type',
+      'unix ms → date',
+      'unix ns → date',
+      'unix seconds → date',
+      'unix µs → date',
+      'Windows FILETIME → date',
+    ];
+    expect(utilities.map((u) => u.name)).toEqual(all);
+    expect(quickUtilities.map((u) => u.name)).toEqual(all.filter((n) => n !== 'hexdump → text'));
   });
 });

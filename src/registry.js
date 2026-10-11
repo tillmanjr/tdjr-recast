@@ -2,12 +2,30 @@
  * Every utility the app knows about. To add one: import its module below and
  * add it to `modules` keyed by file name. The key appears in error messages.
  */
+import * as coredataTimestampToDate from './utilities/coredata-timestamp-to-date.js';
 import * as hexdumpExtractText from './utilities/hexdump-extract-text.js';
+import * as sqliteJulianToDate from './utilities/sqlite-julian-to-date.js';
+import * as timestampType from './utilities/timestamp-type.js';
+import * as unixMicrosToDate from './utilities/unix-micros-to-date.js';
+import * as unixMillisToDate from './utilities/unix-millis-to-date.js';
+import * as unixNanosToDate from './utilities/unix-nanos-to-date.js';
+import * as unixSecondsToDate from './utilities/unix-seconds-to-date.js';
+import * as webkitTimestampToDate from './utilities/webkit-timestamp-to-date.js';
 import * as weekOfTheYear from './utilities/week-of-the-year.js';
+import * as windowsFiletimeToDate from './utilities/windows-filetime-to-date.js';
 
 const modules = {
+  'coredata-timestamp-to-date.js': coredataTimestampToDate,
   'hexdump-extract-text.js': hexdumpExtractText,
+  'sqlite-julian-to-date.js': sqliteJulianToDate,
+  'timestamp-type.js': timestampType,
+  'unix-micros-to-date.js': unixMicrosToDate,
+  'unix-millis-to-date.js': unixMillisToDate,
+  'unix-nanos-to-date.js': unixNanosToDate,
+  'unix-seconds-to-date.js': unixSecondsToDate,
+  'webkit-timestamp-to-date.js': webkitTimestampToDate,
   'week-of-the-year.js': weekOfTheYear,
+  'windows-filetime-to-date.js': windowsFiletimeToDate,
 };
 
 export const INPUT_TYPES = ['string', 'lines', 'both'];
