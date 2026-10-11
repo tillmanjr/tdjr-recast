@@ -31,6 +31,9 @@ export function validate(meta, file) {
   if (meta.quick && (meta.inputType !== 'string' || meta.resultType !== 'string')) {
     fail('quick utilities must be string → string');
   }
+  if (meta.quickPlaceholder !== undefined && (typeof meta.quickPlaceholder !== 'string' || meta.quickPlaceholder === '')) {
+    fail('meta.quickPlaceholder must be a string when set');
+  }
   return meta;
 }
 

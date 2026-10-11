@@ -45,6 +45,7 @@ export const meta = {
   inputType: 'string',
   resultType: 'string',
   quick: true,
+  quickPlaceholder: 'year, month, day',
 };
 
 export default weekOfTheYear;

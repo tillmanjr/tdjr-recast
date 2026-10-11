@@ -26,6 +26,7 @@ export const meta = {
   inputType: 'string',         // 'string' | 'lines' | 'both'
   resultType: 'string',        // 'string' | 'lines'
   quick: false,                // true puts it on the Quick tab (string → string only)
+  // quickPlaceholder: 'e.g. year, month, day',  // optional hint shown in the empty Quick input
 };
 
 export default myUtility;

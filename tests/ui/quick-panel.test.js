@@ -113,4 +113,11 @@ describe('createQuickPanel', () => {
     expect(output.classList.contains('error')).toBe(false);
     expect(rows[0].input.value).toBe('');
   });
+
+  it('shows meta.quickPlaceholder in the input when set, and nothing otherwise', () => {
+    const dated = { ...upper, name: 'dated', quickPlaceholder: 'year, month, day' };
+    const { rows } = setup([dated, upper]);
+    expect(rows[0].input.placeholder).toBe('year, month, day');
+    expect(rows[1].input.placeholder).toBe('');
+  });
 });

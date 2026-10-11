@@ -31,6 +31,7 @@ function createRow(meta) {
   name.textContent = meta.name;
   name.title = meta.description;
   const input = row.querySelector('.input');
+  if (meta.quickPlaceholder) input.placeholder = meta.quickPlaceholder;
   const output = row.querySelector('.output');
   const status = row.querySelector('.status');
 

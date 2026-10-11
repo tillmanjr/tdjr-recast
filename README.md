@@ -36,6 +36,7 @@ export const meta = {
   inputType: 'lines',            // 'string' | 'lines' | 'both'
   resultType: 'lines',           // 'string' | 'lines'
   quick: false,                  // true puts it on the Quick tab; needs string → string
+  // quickPlaceholder: 'a, b, c', // optional: hint shown in the empty Quick input
 };
 
 export default trimLines;
