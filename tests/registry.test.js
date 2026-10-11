@@ -118,7 +118,10 @@ describe('real registry', () => {
       'TSV → JSON',
       'date → week of the year',
       'hexdump → text',
+      'Remove line breaks',
       'Strip single periods',
+      'Trim end',
+      'Trim ending comma',
       'timestamp → type', // sortOrder: 0 lifts it above the alphabetical rest
       'Chrome/WebKit → date',
       'CoreData → date',
@@ -133,7 +136,11 @@ describe('real registry', () => {
       'URL decode',
       'URL encode',
     ];
-    const notQuick = ['CSV → JSON', 'JSON → CSV', 'JSON → TSV', 'TSV → JSON', 'hexdump → text', 'Strip single periods', 'Base64 decode', 'Base64 encode'];
+    const notQuick = [
+      'CSV → JSON', 'JSON → CSV', 'JSON → TSV', 'TSV → JSON', 'hexdump → text',
+      'Remove line breaks', 'Strip single periods', 'Trim end', 'Trim ending comma',
+      'Base64 decode', 'Base64 encode',
+    ];
     expect(utilities.map((u) => u.name)).toEqual(all);
     expect(quickUtilities.map((u) => u.name)).toEqual(all.filter((n) => !notQuick.includes(n)));
   });

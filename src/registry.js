@@ -9,10 +9,13 @@ import * as csvToJson from './utilities/csv-to-json.js';
 import * as hexdumpExtractText from './utilities/hexdump-extract-text.js';
 import * as jsonToCsv from './utilities/json-to-csv.js';
 import * as jsonToTsv from './utilities/json-to-tsv.js';
+import * as removeLineBreaks from './utilities/remove-line-breaks.js';
 import * as sqliteJulianToDate from './utilities/sqlite-julian-to-date.js';
 import * as stripSinglePeriods from './utilities/strip-single-periods.js';
 import * as swapPair from './utilities/swap-pair.js';
 import * as timestampType from './utilities/timestamp-type.js';
+import * as trimEnd from './utilities/trim-end.js';
+import * as trimEndingComma from './utilities/trim-ending-comma.js';
 import * as tsvToJson from './utilities/tsv-to-json.js';
 import * as unixMicrosToDate from './utilities/unix-micros-to-date.js';
 import * as unixMillisToDate from './utilities/unix-millis-to-date.js';
@@ -32,10 +35,13 @@ const modules = {
   'hexdump-extract-text.js': hexdumpExtractText,
   'json-to-csv.js': jsonToCsv,
   'json-to-tsv.js': jsonToTsv,
+  'remove-line-breaks.js': removeLineBreaks,
   'sqlite-julian-to-date.js': sqliteJulianToDate,
   'strip-single-periods.js': stripSinglePeriods,
   'swap-pair.js': swapPair,
   'timestamp-type.js': timestampType,
+  'trim-end.js': trimEnd,
+  'trim-ending-comma.js': trimEndingComma,
   'tsv-to-json.js': tsvToJson,
   'unix-micros-to-date.js': unixMicrosToDate,
   'unix-millis-to-date.js': unixMillisToDate,
