@@ -2,27 +2,43 @@
  * Every utility the app knows about. To add one: import its module below and
  * add it to `modules` keyed by file name. The key appears in error messages.
  */
+import * as base64Decode from './utilities/base64-decode.js';
+import * as base64Encode from './utilities/base64-encode.js';
 import * as coredataTimestampToDate from './utilities/coredata-timestamp-to-date.js';
+import * as csvToJson from './utilities/csv-to-json.js';
 import * as hexdumpExtractText from './utilities/hexdump-extract-text.js';
+import * as jsonToCsv from './utilities/json-to-csv.js';
+import * as jsonToTsv from './utilities/json-to-tsv.js';
 import * as sqliteJulianToDate from './utilities/sqlite-julian-to-date.js';
 import * as timestampType from './utilities/timestamp-type.js';
+import * as tsvToJson from './utilities/tsv-to-json.js';
 import * as unixMicrosToDate from './utilities/unix-micros-to-date.js';
 import * as unixMillisToDate from './utilities/unix-millis-to-date.js';
 import * as unixNanosToDate from './utilities/unix-nanos-to-date.js';
 import * as unixSecondsToDate from './utilities/unix-seconds-to-date.js';
+import * as urlDecode from './utilities/url-decode.js';
+import * as urlEncode from './utilities/url-encode.js';
 import * as webkitTimestampToDate from './utilities/webkit-timestamp-to-date.js';
 import * as weekOfTheYear from './utilities/week-of-the-year.js';
 import * as windowsFiletimeToDate from './utilities/windows-filetime-to-date.js';
 
 const modules = {
+  'base64-decode.js': base64Decode,
+  'base64-encode.js': base64Encode,
   'coredata-timestamp-to-date.js': coredataTimestampToDate,
+  'csv-to-json.js': csvToJson,
   'hexdump-extract-text.js': hexdumpExtractText,
+  'json-to-csv.js': jsonToCsv,
+  'json-to-tsv.js': jsonToTsv,
   'sqlite-julian-to-date.js': sqliteJulianToDate,
   'timestamp-type.js': timestampType,
+  'tsv-to-json.js': tsvToJson,
   'unix-micros-to-date.js': unixMicrosToDate,
   'unix-millis-to-date.js': unixMillisToDate,
   'unix-nanos-to-date.js': unixNanosToDate,
   'unix-seconds-to-date.js': unixSecondsToDate,
+  'url-decode.js': urlDecode,
+  'url-encode.js': urlEncode,
   'webkit-timestamp-to-date.js': webkitTimestampToDate,
   'week-of-the-year.js': weekOfTheYear,
   'windows-filetime-to-date.js': windowsFiletimeToDate,

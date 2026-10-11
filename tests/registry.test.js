@@ -111,6 +111,10 @@ describe('buildRegistry', () => {
 describe('real registry', () => {
   it('lists every utility by category then name, and all but hexdump as quick', () => {
     const all = [
+      'CSV → JSON',
+      'JSON → CSV',
+      'JSON → TSV',
+      'TSV → JSON',
       'date → week of the year',
       'hexdump → text',
       'timestamp → type', // sortOrder: 0 lifts it above the alphabetical rest
@@ -122,8 +126,13 @@ describe('real registry', () => {
       'unix seconds → date',
       'unix µs → date',
       'Windows FILETIME → date',
+      'Base64 decode',
+      'Base64 encode',
+      'URL decode',
+      'URL encode',
     ];
+    const notQuick = ['CSV → JSON', 'JSON → CSV', 'JSON → TSV', 'TSV → JSON', 'hexdump → text', 'Base64 decode', 'Base64 encode'];
     expect(utilities.map((u) => u.name)).toEqual(all);
-    expect(quickUtilities.map((u) => u.name)).toEqual(all.filter((n) => n !== 'hexdump → text'));
+    expect(quickUtilities.map((u) => u.name)).toEqual(all.filter((n) => !notQuick.includes(n)));
   });
 });
