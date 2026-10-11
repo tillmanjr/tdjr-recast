@@ -122,14 +122,21 @@ describe('createTabPanel buttons and toggles', () => {
     expect($('.output').classList.contains('error')).toBe(false);
   });
 
-  it('Copy output writes the output to the clipboard', async () => {
+  it('the Copy button sits in the Output area head, not the toolbar, and copies the output', async () => {
     const { $, pick } = setup();
+    const head = [...$('.areas').querySelectorAll('.area-head')][1];
+    expect(head.textContent).toContain('Output');
+    const copy = head.querySelector('.btn-copy');
+    expect(copy).not.toBeNull();
+    expect($('.toolbar .btn-copy')).toBeNull();
     pick('upper');
     $('.input').value = 'abc';
     $('.btn-execute').click();
-    $('.btn-copy').click();
+    copy.click();
     await Promise.resolve();
     expect(navigator.clipboard.writeText).toHaveBeenCalledWith('ABC');
+    await Promise.resolve();
+    expect(head.querySelector('.copy-status').textContent).toBe('Copied');
   });
 
   it('Send output to new tab hands the output to the callback', () => {

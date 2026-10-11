@@ -62,7 +62,10 @@ button, select { color: var(--fg); background: var(--surface); border: 1px solid
 .stacked .areas { flex-direction: column; }
 .side-by-side .areas { flex-direction: row; }
 .area { flex: 1; min-height: 0; min-width: 0; display: flex; flex-direction: column; }
-.area-head { display: flex; justify-content: space-between; font-size: 11px; text-transform: uppercase; color: var(--fg-muted); margin-bottom: 3px; }
+.area-head { display: flex; justify-content: space-between; align-items: center; font-size: 11px; text-transform: uppercase; color: var(--fg-muted); margin-bottom: 3px; }
+.area-head .controls { display: flex; align-items: center; gap: 10px; }
+.area-head .btn-copy { font: inherit; text-transform: none; padding: 2px 8px; cursor: pointer; }
+.area-head .copy-status { text-transform: none; }
 textarea { font-family: ui-monospace, Consolas, monospace; font-size: 12px; color: var(--fg); border: 1px solid var(--border); border-radius: 4px; padding: 6px 8px; background: var(--field-bg); resize: none; }
 .area textarea { flex: 1; }
 textarea.output { background: var(--output-bg); border-color: var(--output-border); }
