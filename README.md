@@ -86,7 +86,7 @@ pnpm tauri build --no-bundle   # refresh src-tauri/target/release/convert-extrac
 pnpm tauri build               # also produce the MSI and NSIS installers under src-tauri/target/release/bundle/
 ```
 
-Utilities are listed by category, then by `sortOrder` for those that set one (lowest first), then by name. The Quick tab shows one collapsible group per category and the dropdown one option group. Choose categories deliberately as the collection grows. Categories in use: `data`, `date`, `hex`, `timestamp`, `web`.
+Utilities are listed by category, then by `sortOrder` for those that set one (lowest first), then by name. The Quick tab shows one collapsible group per category and the dropdown one option group. Choose categories deliberately as the collection grows. Categories in use: `data`, `date`, `hex`, `text`, `timestamp`, `web`.
 
 Code shared by several utilities lives in `src/lib/`, not in `src/utilities/`, so the registry never mistakes it for a utility. The timestamp utilities are an example: each is a few lines over `src/lib/timestamp.js`.
 
