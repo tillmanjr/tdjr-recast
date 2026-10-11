@@ -1,8 +1,10 @@
 # convert-extract
 
-A small desktop app for running your own JavaScript string utilities. Each tab has an input area, an output area, a dropdown to pick a utility, and an Execute button. Frequently used string → string utilities also get a one-line row each on the **Quick** tab.
+A small desktop app, titled **Extract, Convert, Transform** in its window, for running your own JavaScript string utilities. Each tab has an input area, an output area, a dropdown to pick a utility, and an Execute button. Frequently used string → string utilities also get a one-line row each on the **Quick** tab, and the **Composer** chains utilities into named sequences.
 
 Built with [Tauri 2](https://tauri.app) and a vanilla JavaScript + [Vite](https://vite.dev) frontend. No framework, no custom Rust.
+
+What each bundled utility does, with its rules and error messages, is in **[docs/UTILITIES.md](docs/UTILITIES.md)**.
 
 ## Using the app
 
@@ -16,10 +18,26 @@ Built with [Tauri 2](https://tauri.app) and a vanilla JavaScript + [Vite](https:
 - **Log** at the right of the tab bar opens a drawer listing every Quick run this session: local timestamp, `category:name`, input, output, tab-separated and one line each (line breaks inside values are written as `\n`; failed runs show `ERROR: message`). Select any part of it, or use Copy for the whole log and Clear to empty it. The log is not kept between launches.
 - **☾ / ☀** at the right of the tab bar switches between light and dark mode. The first launch follows your system setting; after that your choice is remembered.
 - Window size and position are restored on relaunch. Tab contents are not; every launch starts fresh.
+- Buttons show a pressed flash, including Execute and ▶ when fired from Ctrl+Enter. Quick inputs and outputs show their full value in a tooltip on hover, since long values are clipped rather than scrolled.
+
+## Bundled utilities
+
+Grouped as they appear in the dropdown. Details for each, including edge cases and error messages, are in [docs/UTILITIES.md](docs/UTILITIES.md).
+
+| Category | Utilities |
+|---|---|
+| `data` | CSV → JSON, JSON → CSV, JSON → TSV, Swap pair, TSV → JSON |
+| `date` | date → week of the year |
+| `hex` | hexdump → text |
+| `text` | Remove line breaks, Strip single periods, Trim end, Trim ending comma |
+| `timestamp` | timestamp → type, and converters to UTC from Chrome/WebKit, CoreData, SQLite Julian, Unix seconds/ms/µs/ns, Windows FILETIME |
+| `web` | Base64 decode, Base64 encode, URL decode, URL encode |
+
+Plus the `sequence` group: whatever you have saved in the Composer.
 
 ## Adding a utility
 
-Four steps per utility. Nothing else in the app needs touching.
+Five steps per utility. Nothing else in the app needs touching.
 
 ### 1. Drop the file in `src/utilities/`
 
@@ -72,7 +90,7 @@ The registry validates every `meta` at startup and names the file in the error, 
 
 ### 3. Add a test under `tests/utilities/`
 
-Name it to match the utility, here `tests/utilities/trim-lines.test.js`. Use `tests/utilities/hexdump-extract-text.test.js` as a model: a `describe` block with one case per behaviour, plus a check on `meta`.
+Name it to match the utility, here `tests/utilities/trim-lines.test.js`. Use `tests/utilities/trim-end.test.js` as a small model, or `tests/utilities/swap-pair.test.js` for one with several rules: a `describe` block with one case per behaviour, plus a check on `meta`.
 
 The coverage gate is 100% lines, branches, functions and statements, so every branch in your function needs a case. Run:
 
@@ -90,7 +108,11 @@ pnpm tauri build               # also produce the MSI and NSIS installers under 
 
 Utilities are listed by category, then by `sortOrder` for those that set one (lowest first), then by name. The Quick tab shows one collapsible group per category and the dropdown one option group. Choose categories deliberately as the collection grows. Categories in use: `data`, `date`, `hex`, `text`, `timestamp`, `web`.
 
-Code shared by several utilities lives in `src/lib/`, not in `src/utilities/`, so the registry never mistakes it for a utility. The timestamp utilities are an example: each is a few lines over `src/lib/timestamp.js`.
+Code shared by several utilities lives in `src/lib/`, not in `src/utilities/`, so the registry never mistakes it for a utility. The timestamp utilities are an example: each is a few lines over `src/lib/timestamp.js`, and the CSV/TSV ones over `src/lib/delimited.js`.
+
+### 5. Describe it
+
+Add an entry for it to [docs/UTILITIES.md](docs/UTILITIES.md) under its category, and the category to the table above if it is new.
 
 ## Development
 
@@ -110,7 +132,7 @@ Tests are written before code, and the coverage thresholds in `vite.config.js` a
 
 ```
 src/
-  main.js              boots the tab bar, Quick tab, first regular tab, theme toggle
+  main.js              boots the tab bar, Quick and Composer tabs, first regular tab, log drawer, theme toggle
   registry.js          lists every utility and validates its meta
   style.css            colour variables for light and dark, all layout
   utilities/           one ES module per utility, plus _template.js
@@ -132,7 +154,8 @@ src/
     theme.js           light/dark toggle
 tests/                 mirrors src/; UI tests run under jsdom
 src-tauri/             Tauri shell: config, capabilities, window-state plugin
-docs/superpowers/      design spec and implementation plan
+docs/UTILITIES.md      what every bundled utility does
+docs/superpowers/      design specs and the original implementation plan
 ```
 
 ### Not yet
@@ -140,7 +163,4 @@ docs/superpowers/      design spec and implementation plan
 - `meta.args`: per-utility arguments with a small UI. Deferred.
 - Async utilities.
 - Persisting tab contents between launches.
-
-## Known limitation
-
-In `hexdump → text`, a gutter-less dump whose offsets have no colon, such as `0000  41 42 43`, is all hex characters, so it is treated as bare hex and the offset is decoded as data. Dumps with an ASCII gutter, or xxd-style `0000:` offsets, decode correctly.
+- Exporting or importing sequences as a file; nesting a sequence inside another.
