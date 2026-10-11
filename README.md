@@ -18,6 +18,7 @@ What each bundled utility does, with its rules and error messages, is in **[docs
 - **Log** at the right of the tab bar opens a drawer listing every Quick run this session: local timestamp, `category:name`, input, output, tab-separated and one line each (line breaks inside values are written as `\n`; failed runs show `ERROR: message`). Select any part of it, or use Copy for the whole log and Clear to empty it. The log is not kept between launches.
 - **☾ / ☀** at the right of the tab bar switches between light and dark mode. The first launch follows your system setting; after that your choice is remembered.
 - Window size and position are restored on relaunch. Tab contents are not; every launch starts fresh.
+- **Minimize to tray** — minimizing the window hides it and leaves an icon in the system tray. Left-click the icon, or pick Show from its menu, to bring the window back. Closing the window quits, as does Quit in the tray menu.
 - Buttons show a pressed flash, including Execute and ▶ when fired from Ctrl+Enter. Quick inputs and outputs show their full value in a tooltip on hover, since long values are clipped rather than scrolled.
 
 ## Bundled utilities
