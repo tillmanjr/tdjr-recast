@@ -52,10 +52,20 @@ export function validate(meta, file) {
   if (meta.quickPlaceholder !== undefined && (typeof meta.quickPlaceholder !== 'string' || meta.quickPlaceholder === '')) {
     fail('meta.quickPlaceholder must be a string when set');
   }
+  if (meta.sortOrder !== undefined && !Number.isFinite(meta.sortOrder)) {
+    fail('meta.sortOrder must be a finite number when set');
+  }
   return meta;
 }
 
-/** Validates every module's meta and returns them sorted by category, then name. */
+/** Within a category: utilities with a sortOrder first (ascending), then the rest; ties by name. */
+function compare(a, b) {
+  return a.category.localeCompare(b.category)
+    || (a.sortOrder ?? Infinity) - (b.sortOrder ?? Infinity)
+    || a.name.localeCompare(b.name);
+}
+
+/** Validates every module's meta and returns them sorted by category, then sortOrder, then name. */
 export function buildRegistry(mods) {
   const list = [];
   const seen = new Set();
@@ -65,7 +75,7 @@ export function buildRegistry(mods) {
     seen.add(meta.name);
     list.push(meta);
   }
-  return list.sort((a, b) => a.category.localeCompare(b.category) || a.name.localeCompare(b.name));
+  return list.sort(compare);
 }
 
 export const utilities = buildRegistry(modules);

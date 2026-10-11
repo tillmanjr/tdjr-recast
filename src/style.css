@@ -70,6 +70,9 @@ textarea.error { background: var(--error-bg); border-color: var(--error-border);
 
 /* quick tab */
 .quick { overflow-y: auto; }
+.quick-group { display: flex; flex-direction: column; gap: 6px; }
+.quick-group-title { cursor: pointer; user-select: none; font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.04em; color: var(--fg-muted); padding: 2px 0; }
+.quick-group-title::marker { color: var(--fg-muted); }
 .quick-row { display: flex; align-items: center; gap: 8px; padding: 6px 8px; border: 1px solid var(--border); border-radius: 6px; background: var(--surface); }
 .quick-row button { font: inherit; padding: 4px 8px; }
 .quick-name { min-width: 150px; font-weight: 600; }

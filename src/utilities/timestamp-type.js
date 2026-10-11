@@ -26,6 +26,7 @@ export const meta = {
   resultType: 'string',
   quick: true,
   quickPlaceholder: '1700000000',
+  sortOrder: 0, // the detector heads the timestamp group
 };
 
 export default timestampType;

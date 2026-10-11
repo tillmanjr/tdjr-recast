@@ -56,6 +56,15 @@ describe('validate', () => {
   it('rejects a non-string name', () => {
     expect(() => validate({ ...good(), name: 42 }, 'f.js')).toThrow(/meta.name must be a non-empty string/);
   });
+
+  it('accepts an optional numeric sortOrder and rejects other values', () => {
+    const m = { ...good(), sortOrder: 2 };
+    expect(validate(m, 'upper.js')).toBe(m);
+    expect(validate({ ...good(), sortOrder: -1.5 }, 'upper.js').sortOrder).toBe(-1.5);
+    for (const bad of ['1', NaN, Infinity, null, true]) {
+      expect(() => validate({ ...good(), sortOrder: bad }, 'upper.js')).toThrow('Utility upper.js: meta.sortOrder must be a finite number when set');
+    }
+  });
 });
 
 describe('buildRegistry', () => {
@@ -66,6 +75,25 @@ describe('buildRegistry', () => {
       'b.js': { meta: { ...good(), name: 'alpha', category: 'text' } },
     });
     expect(reg.map((m) => m.name)).toEqual(['zeta', 'alpha', 'beta']);
+  });
+
+  it('puts utilities with a sortOrder first within their category, lowest number first', () => {
+    const reg = buildRegistry({
+      'a.js': { meta: { ...good(), name: 'alpha', category: 'text' } },
+      'b.js': { meta: { ...good(), name: 'beta', category: 'text', sortOrder: 10 } },
+      'c.js': { meta: { ...good(), name: 'gamma', category: 'text', sortOrder: 1 } },
+      'd.js': { meta: { ...good(), name: 'delta', category: 'text' } },
+      'e.js': { meta: { ...good(), name: 'omega', category: 'hex', sortOrder: 99 } },
+    });
+    expect(reg.map((m) => m.name)).toEqual(['omega', 'gamma', 'beta', 'alpha', 'delta']);
+  });
+
+  it('breaks a sortOrder tie by name', () => {
+    const reg = buildRegistry({
+      'a.js': { meta: { ...good(), name: 'beta', category: 'text', sortOrder: 1 } },
+      'b.js': { meta: { ...good(), name: 'alpha', category: 'text', sortOrder: 1 } },
+    });
+    expect(reg.map((m) => m.name)).toEqual(['alpha', 'beta']);
   });
 
   it('rejects duplicate names, naming the second file', () => {
@@ -85,10 +113,10 @@ describe('real registry', () => {
     const all = [
       'date → week of the year',
       'hexdump → text',
+      'timestamp → type', // sortOrder: 0 lifts it above the alphabetical rest
       'Chrome/WebKit → date',
       'CoreData → date',
       'SQLite Julian → date',
-      'timestamp → type',
       'unix ms → date',
       'unix ns → date',
       'unix seconds → date',

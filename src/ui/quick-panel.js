@@ -3,7 +3,10 @@ import { copyText } from './clipboard.js';
 
 const MAX_ROWS = 4;
 
-/** The Quick tab: one row per quick utility (name, input, ▶, output, Copy). */
+/**
+ * The Quick tab: one collapsible group per category, in the order the
+ * utilities arrive (the registry's), with one row per utility inside.
+ */
 export function createQuickPanel({ utilities }) {
   const el = document.createElement('div');
   el.className = 'panel quick';
@@ -11,7 +14,21 @@ export function createQuickPanel({ utilities }) {
     el.textContent = 'No utilities are marked quick: true.';
     return { el };
   }
-  for (const meta of utilities) el.append(createRow(meta));
+  const groups = new Map();
+  for (const meta of utilities) {
+    if (!groups.has(meta.category)) {
+      const group = document.createElement('details');
+      group.className = 'quick-group';
+      group.open = true;
+      const title = document.createElement('summary');
+      title.className = 'quick-group-title';
+      title.textContent = meta.category;
+      group.append(title);
+      el.append(group);
+      groups.set(meta.category, group);
+    }
+    groups.get(meta.category).append(createRow(meta));
+  }
   return { el };
 }
 

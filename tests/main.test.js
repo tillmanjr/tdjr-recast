@@ -23,6 +23,12 @@ describe('app boot', () => {
     expect(names).not.toContain('hexdump → text');
   });
 
+  it('groups the Quick rows by category with the type detector heading the timestamp group', () => {
+    const groups = [...document.querySelectorAll('details.quick-group')];
+    expect(groups.map((g) => g.querySelector('.quick-group-title').textContent)).toEqual(['date', 'timestamp']);
+    expect(groups[1].querySelector('.quick-row .quick-name').textContent).toBe('timestamp → type');
+  });
+
   it('runs a Quick row end to end and shows its placeholder', () => {
     const row = [...document.querySelectorAll('.quick-row')].find((r) => r.querySelector('.quick-name').textContent === 'date → week of the year');
     expect(row.querySelector('.input').placeholder).toBe('year, month, day');

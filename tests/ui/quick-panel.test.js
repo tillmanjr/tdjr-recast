@@ -114,6 +114,28 @@ describe('createQuickPanel', () => {
     expect(rows[0].input.value).toBe('');
   });
 
+  it('groups rows under one collapsible heading per category, in registry order', () => {
+    const hexA = { ...upper, name: 'hex a', category: 'hex' };
+    const hexB = { ...upper, name: 'hex b', category: 'hex' };
+    const { panel } = setup([upper, boom, hexA, hexB]);
+    const groups = [...panel.el.querySelectorAll('details.quick-group')];
+    expect(groups.map((g) => g.querySelector('summary.quick-group-title').textContent)).toEqual(['text', 'hex']);
+    expect(groups.every((g) => g.open)).toBe(true);
+    expect([...groups[0].querySelectorAll('.quick-row .quick-name')].map((e) => e.textContent)).toEqual(['upper', 'boom']);
+    expect([...groups[1].querySelectorAll('.quick-row .quick-name')].map((e) => e.textContent)).toEqual(['hex a', 'hex b']);
+    expect(panel.el.querySelectorAll('.quick-row')).toHaveLength(4);
+  });
+
+  it('a group collapses and expands without losing its rows', () => {
+    const { panel, rows } = setup();
+    const group = panel.el.querySelector('details.quick-group');
+    rows[0].input.value = 'kept';
+    group.open = false;
+    expect(group.open).toBe(false);
+    group.open = true;
+    expect(group.querySelector('.quick-row .input').value).toBe('kept');
+  });
+
   it('shows meta.quickPlaceholder in the input when set, and nothing otherwise', () => {
     const dated = { ...upper, name: 'dated', quickPlaceholder: 'year, month, day' };
     const { rows } = setup([dated, upper]);

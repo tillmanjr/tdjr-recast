@@ -6,7 +6,7 @@ Built with [Tauri 2](https://tauri.app) and a vanilla JavaScript + [Vite](https:
 
 ## Using the app
 
-- **Quick tab** — one row per utility marked `quick: true`. Type or paste into the input, press ▶ (or Ctrl+Enter), read the output. Each row has Copy and Clear.
+- **Quick tab** — one row per utility marked `quick: true`, grouped under a collapsible heading per category. Type or paste into the input, press ▶ (or Ctrl+Enter), read the output. Each row has Copy and Clear.
 - **Regular tabs** — press **+** for a new tab. Pick a utility from the dropdown (grouped by category), paste into the input, press **Execute** or Ctrl+Enter. The tab takes the utility's name as its title.
   - **Copy** puts the output on the clipboard. **Clear** empties both areas. **Send to new tab** opens a fresh tab seeded with the current output, for chaining utilities.
   - **Side by side / Stacked** switches that tab between a vertical and a horizontal layout.
@@ -37,6 +37,7 @@ export const meta = {
   resultType: 'lines',           // 'string' | 'lines'
   quick: false,                  // true puts it on the Quick tab; needs string → string
   // quickPlaceholder: 'a, b, c', // optional: hint shown in the empty Quick input
+  // sortOrder: 0,                // optional: rank within the category, ahead of the alphabetical rest
 };
 
 export default trimLines;
@@ -85,7 +86,7 @@ pnpm tauri build --no-bundle   # refresh src-tauri/target/release/convert-extrac
 pnpm tauri build               # also produce the MSI and NSIS installers under src-tauri/target/release/bundle/
 ```
 
-Utilities are listed by category then name, so choose categories deliberately as the collection grows. Categories in use: `date`, `hex`, `timestamp`.
+Utilities are listed by category, then by `sortOrder` for those that set one (lowest first), then by name. The Quick tab shows one collapsible group per category and the dropdown one option group. Choose categories deliberately as the collection grows. Categories in use: `date`, `hex`, `timestamp`.
 
 Code shared by several utilities lives in `src/lib/`, not in `src/utilities/`, so the registry never mistakes it for a utility. The timestamp utilities are an example: each is a few lines over `src/lib/timestamp.js`.
 

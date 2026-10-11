@@ -27,6 +27,7 @@ export const meta = {
   resultType: 'string',        // 'string' | 'lines'
   quick: false,                // true puts it on the Quick tab (string → string only)
   // quickPlaceholder: 'e.g. year, month, day',  // optional hint shown in the empty Quick input
+  // sortOrder: 0,                // optional; ranks this ahead of the alphabetical ones in its category
 };
 
 export default myUtility;
