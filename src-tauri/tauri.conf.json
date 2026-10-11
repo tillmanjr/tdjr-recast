@@ -1,9 +1,9 @@
 {
   "$schema": "../node_modules/@tauri-apps/cli/config.schema.json",
-  "productName": "extract-convert-transform",
+  "productName": "Recast",
   "version": "0.1.0",
-  "mainBinaryName": "convert-extract",
-  "identifier": "dev.xenomorph9.convert-extract",
+  "mainBinaryName": "recast",
+  "identifier": "dev.xenomorph9.tdjr-recast",
   "build": {
     "frontendDist": "../dist",
     "devUrl": "http://localhost:5173",
@@ -13,7 +13,7 @@
   "app": {
     "windows": [
       {
-        "title": "Extract, Convert, Transform",
+        "title": "Recast",
         "width": 1100,
         "height": 750,
         "resizable": true,

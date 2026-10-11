@@ -1,5 +1,6 @@
 {
-  "name": "extract-convert-transform",
+  "name": "tdjr-recast",
+  "description": "Recast: this into that. A bench of text utilities and composable sequences.",
   "private": true,
   "version": "0.1.0",
   "type": "module",

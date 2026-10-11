@@ -1,6 +1,8 @@
-# convert-extract
+# Recast
 
-A small desktop app, titled **Extract, Convert, Transform** in its window, for running your own JavaScript string utilities. Each tab has an input area, an output area, a dropdown to pick a utility, and an Execute button. Frequently used string → string utilities also get a one-line row each on the **Quick** tab, and the **Composer** chains utilities into named sequences.
+*This into that.*
+
+A small desktop app for turning one piece of text into another with your own JavaScript utilities. Each tab has an input area, an output area, a dropdown to pick a utility, and an Execute button. Frequently used string → string utilities also get a one-line row each on the **Quick** tab, and the **Composer** chains utilities into named sequences.
 
 Built with [Tauri 2](https://tauri.app) and a vanilla JavaScript + [Vite](https://vite.dev) frontend. No framework, no custom Rust.
 
@@ -103,7 +105,7 @@ pnpm coverage
 
 ```sh
 pnpm tauri dev                 # live-reloading window while you work
-pnpm tauri build --no-bundle   # refresh src-tauri/target/release/convert-extract.exe
+pnpm tauri build --no-bundle   # refresh src-tauri/target/release/recast.exe
 pnpm tauri build               # also produce the MSI and NSIS installers under src-tauri/target/release/bundle/
 ```
 
