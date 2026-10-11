@@ -59,6 +59,29 @@ button:focus-visible { outline: 2px solid var(--focus-ring); outline-offset: 1px
 .tab-tools { margin-left: auto; align-self: center; padding-bottom: 6px; display: flex; gap: 6px; }
 .btn-log { font: inherit; padding: 3px 8px; }
 
+/* composer tab */
+.composer { flex-direction: row; gap: 12px; }
+.composer-saved { flex: 0 0 280px; display: flex; flex-direction: column; gap: 6px; min-height: 0; overflow-y: auto; }
+.composer-saved-title { font-size: 11px; text-transform: uppercase; color: var(--fg-muted); }
+.seq-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 4px; }
+.seq-item { display: flex; align-items: center; gap: 6px; padding: 6px 8px; border: 1px solid var(--border); border-radius: 6px; background: var(--surface); }
+.seq-name { font-weight: 600; flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.seq-info { color: var(--fg-muted); font-size: 11px; white-space: nowrap; }
+.seq-empty { color: var(--fg-muted); }
+.btn-seq-delete.confirm { color: var(--error-border); border-color: var(--error-border); font-weight: 600; }
+.composer-editor { flex: 1; min-width: 0; min-height: 0; display: flex; flex-direction: column; gap: 8px; overflow-y: auto; }
+.composer-row { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+.seq-name-input { font: inherit; padding: 4px 8px; border: 1px solid var(--border); border-radius: 4px; background: var(--field-bg); color: var(--fg); min-width: 220px; margin-left: 4px; }
+.steps { margin: 0; padding-left: 22px; display: flex; flex-direction: column; gap: 6px; }
+.step { display: flex; align-items: center; gap: 6px; }
+.step select { font: inherit; padding: 3px 6px; max-width: 300px; }
+.composer button { font: inherit; padding: 3px 8px; }
+.composer-try { display: flex; gap: 8px; flex: 1; min-height: 140px; }
+.composer-try .area-head { align-items: center; }
+.composer-try .btn-try { text-transform: none; padding: 2px 8px; }
+.composer-status { color: var(--fg-muted); font-size: 12px; }
+.composer-status.error { color: var(--error-border); }
+
 /* quick log drawer */
 .log-drawer { display: flex; flex-direction: column; height: 220px; min-height: 80px; resize: vertical; overflow: hidden; border-top: 1px solid var(--border); background: var(--bar-bg); padding: 6px 8px 8px; gap: 6px; }
 .log-drawer[hidden] { display: none; }

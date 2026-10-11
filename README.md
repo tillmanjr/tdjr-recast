@@ -12,6 +12,7 @@ Built with [Tauri 2](https://tauri.app) and a vanilla JavaScript + [Vite](https:
   - **Side by side / Stacked** switches that tab between a vertical and a horizontal layout.
   - **Wrap** on each area toggles soft wrapping. Off by default.
   - **Split lines** appears only for utilities that accept both forms of input. Ticked, the input is split one line per array element; unticked, the text goes through whole (use this for pasted JSON you want kept intact).
+- **Composer tab** — build named **sequences**: an ordered list of utilities where each step's output feeds the next. Give it a name, add steps (the Split lines box appears for utilities that accept both forms), tick Quick if you want a row for it, use Try it to run the chain on sample input, then Save. Saved sequences appear under a `sequence` group in every tab's dropdown and, when Quick, on the Quick tab; they run and log like any utility. Edit reloads one into the editor, Delete asks for a second click. Sequences are kept in the app's local storage, so they survive restarts on this machine; steps may not be other sequences.
 - **Log** at the right of the tab bar opens a drawer listing every Quick run this session: local timestamp, `category:name`, input, output, tab-separated and one line each (line breaks inside values are written as `\n`; failed runs show `ERROR: message`). Select any part of it, or use Copy for the whole log and Clear to empty it. The log is not kept between launches.
 - **☾ / ☀** at the right of the tab bar switches between light and dark mode. The first launch follows your system setting; after that your choice is remembered.
 - Window size and position are restored on relaunch. Tab contents are not; every launch starts fresh.
@@ -113,10 +114,19 @@ src/
   registry.js          lists every utility and validates its meta
   style.css            colour variables for light and dark, all layout
   utilities/           one ES module per utility, plus _template.js
+  lib/                 code shared by several utilities
+  sequences/
+    store.js           saved sequences: validation, localStorage persistence
+    compose.js         a sequence as a runnable meta (the step-by-step fold)
+    catalogue.js       static utilities + sequences, with change events
   ui/
     tabs.js            tab bar and panel switching
     tab-panel.js       a regular tab: toolbar, input, output
     quick-panel.js     the Quick tab rows
+    composer-panel.js  the Composer tab
+    quick-log.js       in-memory log of Quick runs
+    log-drawer.js      the log viewer drawer
+    feedback.js        pressed-state flash for buttons
     run.js             feeds a utility according to inputType/resultType
     clipboard.js       Copy with status feedback
     theme.js           light/dark toggle

@@ -2,6 +2,7 @@
 import { describe, it, expect, beforeAll } from 'vitest';
 
 beforeAll(async () => {
+  localStorage.removeItem('sequences');
   document.body.innerHTML = '<div id="app"></div>';
   await import('../src/main.js');
 });
@@ -10,10 +11,12 @@ const titles = () => [...document.querySelectorAll('.tab-title')].map((e) => e.t
 const activeTitle = () => document.querySelector('.tab.active .tab-title').textContent;
 
 describe('app boot', () => {
-  it('starts with a non-closable Quick tab and one active Untitled tab', () => {
-    expect(titles()).toEqual(['Quick', 'Untitled']);
+  it('starts with non-closable Quick and Composer tabs and one active Untitled tab', () => {
+    expect(titles()).toEqual(['Quick', 'Composer', 'Untitled']);
     expect(activeTitle()).toBe('Untitled');
     expect(document.querySelectorAll('.tab')[0].querySelector('.tab-close')).toBeNull();
+    expect(document.querySelectorAll('.tab')[1].querySelector('.tab-close')).toBeNull();
+    expect(document.querySelector('.panel.composer')).not.toBeNull();
   });
 
   it('lists only the quick utilities as Quick rows, hexdump excluded', () => {
@@ -42,7 +45,7 @@ describe('app boot', () => {
     const select = panel.querySelector('.util-select');
     select.value = 'hexdump → text';
     select.dispatchEvent(new Event('change'));
-    expect(titles()).toEqual(['Quick', 'hexdump → text']);
+    expect(titles()).toEqual(['Quick', 'Composer', 'hexdump → text']);
     panel.querySelector('.input').value = '7b0022006d0073006700730022003a00';
     panel.querySelector('.btn-execute').click();
     expect(panel.querySelector('.output').value).toBe('{"msgs":');
@@ -50,10 +53,10 @@ describe('app boot', () => {
 
   it('+ opens a new Untitled tab and Send output seeds another', () => {
     document.querySelector('.tab-add').click();
-    expect(titles()).toEqual(['Quick', 'hexdump → text', 'Untitled']);
+    expect(titles()).toEqual(['Quick', 'Composer', 'hexdump → text', 'Untitled']);
     const first = [...document.querySelectorAll('.panel')].find((p) => p.querySelector('.util-select'));
     first.querySelector('.btn-send').click();
-    expect(titles()).toEqual(['Quick', 'hexdump → text', 'Untitled', 'Untitled']);
+    expect(titles()).toEqual(['Quick', 'Composer', 'hexdump → text', 'Untitled', 'Untitled']);
     const panels = [...document.querySelectorAll('.panel')].filter((p) => p.querySelector('.util-select'));
     expect(panels.at(-1).querySelector('.input').value).toBe('{"msgs":');
     expect(activeTitle()).toBe('Untitled');
@@ -84,5 +87,43 @@ describe('app boot', () => {
     expect(document.documentElement.dataset.theme).not.toBe(before);
     btn.click();
     expect(document.documentElement.dataset.theme).toBe(before);
+  });
+
+  it('a sequence saved in the Composer shows up on the Quick tab and in every tab dropdown, and runs', () => {
+    const composer = document.querySelector('.panel.composer');
+    const choose = (li, file) => { li.querySelector('.step-select').value = file; li.querySelector('.step-select').dispatchEvent(new Event('change')); };
+    composer.querySelector('.seq-name-input').value = 'Flatten';
+    composer.querySelector('.chk-seq-quick').checked = true;
+    choose(composer.querySelector('.step'), 'trim-end.js');
+    composer.querySelector('.btn-step-add').click();
+    choose(composer.querySelectorAll('.step')[1], 'remove-line-breaks.js');
+    composer.querySelector('.btn-seq-save').click();
+    expect(composer.querySelector('.composer-status').textContent).toBe('Saved "Flatten"');
+
+    const quickNames = [...document.querySelectorAll('.quick-row .quick-name')].map((e) => e.textContent);
+    expect(quickNames).toContain('Flatten');
+    const groupTitles = [...document.querySelectorAll('.quick-group-title')].map((e) => e.textContent);
+    expect(groupTitles).toContain('sequence');
+
+    const panels = [...document.querySelectorAll('.panel')].filter((p) => p.querySelector('.util-select'));
+    for (const p of panels) {
+      expect([...p.querySelectorAll('optgroup[label="sequence"] option')].map((o) => o.value)).toEqual(['Flatten']);
+    }
+    const panel = panels[0];
+    expect(panel.querySelector('.util-select').value).toBe('hexdump → text'); // kept across the refresh
+    panel.querySelector('.util-select').value = 'Flatten';
+    panel.querySelector('.util-select').dispatchEvent(new Event('change'));
+    panel.querySelector('.input').value = 'a  \nb \n';
+    panel.querySelector('.btn-execute').click();
+    expect(panel.querySelector('.output').value).toBe('ab');
+    expect(titles()[2]).toBe('Flatten');
+
+    const del = composer.querySelector('.btn-seq-delete');
+    del.click();
+    del.click();
+    expect(panel.querySelector('optgroup[label="sequence"]')).toBeNull();
+    expect(panel.querySelector('.util-select').value).toBe('');
+    expect(titles()[2]).toBe('Untitled');
+    expect([...document.querySelectorAll('.quick-row .quick-name')].map((e) => e.textContent)).not.toContain('Flatten');
   });
 });
