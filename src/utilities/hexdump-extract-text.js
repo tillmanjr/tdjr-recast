@@ -172,7 +172,7 @@ export const meta = {
   fn: hexdumpExtractText,
   inputType: 'string',
   resultType: 'string',
-  quick: true,
+  quick: false,
 };
 
 export default hexdumpExtractText;

@@ -32,6 +32,13 @@ describe('validate', () => {
     expect(() => validate({ ...good(), resultType: 'both' }, 'f.js')).toThrow(/meta.resultType must be one of string, lines/);
   });
 
+  it('accepts an optional quickPlaceholder string and rejects other types', () => {
+    const m = { ...good(), quickPlaceholder: 'year, month, day' };
+    expect(validate(m, 'upper.js')).toBe(m);
+    expect(() => validate({ ...good(), quickPlaceholder: 42 }, 'upper.js')).toThrow('Utility upper.js: meta.quickPlaceholder must be a string when set');
+    expect(() => validate({ ...good(), quickPlaceholder: '' }, 'upper.js')).toThrow('Utility upper.js: meta.quickPlaceholder must be a string when set');
+  });
+
   it('rejects a non-boolean quick', () => {
     expect(() => validate({ ...good(), quick: 'yes' }, 'f.js')).toThrow(/meta.quick must be a boolean/);
   });
@@ -74,8 +81,8 @@ describe('buildRegistry', () => {
 });
 
 describe('real registry', () => {
-  it('contains the hexdump utility and lists it as quick', () => {
-    expect(utilities.some((u) => u.name === 'hexdump → text')).toBe(true);
-    expect(quickUtilities.map((u) => u.name)).toContain('hexdump → text');
+  it('contains both utilities and lists only the week utility as quick', () => {
+    expect(utilities.map((u) => u.name)).toEqual(['date → week of the year', 'hexdump → text']);
+    expect(quickUtilities.map((u) => u.name)).toEqual(['date → week of the year']);
   });
 });

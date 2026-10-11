@@ -1,5 +1,5 @@
 {
-  "name": "convert-extract",
+  "name": "extract-convert-transform",
   "private": true,
   "version": "0.1.0",
   "type": "module",

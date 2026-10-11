@@ -16,16 +16,17 @@ describe('app boot', () => {
     expect(document.querySelectorAll('.tab')[0].querySelector('.tab-close')).toBeNull();
   });
 
-  it('lists every quick utility as a Quick row, by category then name', () => {
+  it('lists only the quick utilities as Quick rows', () => {
     const names = [...document.querySelectorAll('.quick-row .quick-name')].map((e) => e.textContent);
-    expect(names).toEqual(['date → week of the year', 'hexdump → text']);
+    expect(names).toEqual(['date → week of the year']);
   });
 
-  it('runs a Quick row end to end', () => {
-    const row = [...document.querySelectorAll('.quick-row')].find((r) => r.querySelector('.quick-name').textContent === 'hexdump → text');
-    row.querySelector('.input').value = '68656c6c6f';
+  it('runs a Quick row end to end and shows its placeholder', () => {
+    const row = [...document.querySelectorAll('.quick-row')].find((r) => r.querySelector('.quick-name').textContent === 'date → week of the year');
+    expect(row.querySelector('.input').placeholder).toBe('year, month, day');
+    row.querySelector('.input').value = '2026, 01, 05';
     row.querySelector('.btn-run').click();
-    expect(row.querySelector('.output').value).toBe('hello');
+    expect(row.querySelector('.output').value).toBe('2');
   });
 
   it('runs a regular tab end to end and retitles it after the utility', () => {

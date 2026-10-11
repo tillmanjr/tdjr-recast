@@ -113,13 +113,13 @@ describe('hexdumpExtractText dump layouts', () => {
 });
 
 describe('meta', () => {
-  it('declares a quick string → string utility', () => {
+  it('declares a string → string utility that is not on the Quick tab', () => {
     expect(meta).toMatchObject({
       name: 'hexdump → text',
       category: 'hex',
       inputType: 'string',
       resultType: 'string',
-      quick: true,
+      quick: false,
     });
     expect(meta.fn).toBe(hexdumpExtractText);
     expect(meta.description.length).toBeLessThanOrEqual(25);
