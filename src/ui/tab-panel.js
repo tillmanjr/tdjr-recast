@@ -1,5 +1,6 @@
 import { execute } from './run.js';
 import { copyText } from './clipboard.js';
+import { pulse } from './feedback.js';
 
 /**
  * One regular tab: toolbar (utility selector, Execute, Clear, Send output to
@@ -72,9 +73,10 @@ export function createTabPanel({ utilities, onTitleChange, onSendToNewTab }) {
     status.textContent = meta ? `${meta.description} · ${meta.inputType} → ${meta.resultType}` : '';
     onTitleChange(meta ? meta.name : 'Untitled');
   });
-  $('.btn-execute').addEventListener('click', run);
+  const executeBtn = $('.btn-execute');
+  executeBtn.addEventListener('click', run);
   input.addEventListener('keydown', (e) => {
-    if (e.ctrlKey && e.key === 'Enter') { e.preventDefault(); run(); }
+    if (e.ctrlKey && e.key === 'Enter') { e.preventDefault(); pulse(executeBtn); run(); }
   });
   $('.btn-clear').addEventListener('click', () => {
     input.value = '';

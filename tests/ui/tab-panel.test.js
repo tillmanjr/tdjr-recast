@@ -139,6 +139,13 @@ describe('createTabPanel buttons and toggles', () => {
     expect(head.querySelector('.copy-status').textContent).toBe('Copied');
   });
 
+  it('Ctrl+Enter flashes the Execute button as if clicked', () => {
+    const { $, pick } = setup();
+    pick('upper');
+    $('.input').dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter', ctrlKey: true, bubbles: true }));
+    expect($('.btn-execute').classList.contains('pressed')).toBe(true);
+  });
+
   it('Send output to new tab hands the output to the callback', () => {
     const { $, pick, onSendToNewTab } = setup();
     pick('upper');

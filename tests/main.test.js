@@ -59,6 +59,12 @@ describe('app boot', () => {
     expect(activeTitle()).toBe('Untitled');
   });
 
+  it('every button shows a pressed state when clicked', () => {
+    const btn = document.querySelector('.btn-layout');
+    btn.click();
+    expect(btn.classList.contains('pressed')).toBe(true);
+  });
+
   it('offers a theme toggle in the tab bar that flips the document theme', () => {
     const btn = document.querySelector('.tab-bar .tab-tools .btn-theme');
     const before = document.documentElement.dataset.theme;

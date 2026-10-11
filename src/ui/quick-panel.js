@@ -1,5 +1,6 @@
 import { execute } from './run.js';
 import { copyText } from './clipboard.js';
+import { pulse } from './feedback.js';
 
 const MAX_ROWS = 4;
 
@@ -57,13 +58,15 @@ function createRow(meta) {
     output.value = res.ok ? res.output : res.error;
     output.classList.toggle('error', !res.ok);
     autosize(output);
+    mirrorTitle(output);
   }
 
-  row.querySelector('.btn-run').addEventListener('click', run);
+  const runBtn = row.querySelector('.btn-run');
+  runBtn.addEventListener('click', run);
   input.addEventListener('keydown', (e) => {
-    if (e.ctrlKey && e.key === 'Enter') { e.preventDefault(); run(); }
+    if (e.ctrlKey && e.key === 'Enter') { e.preventDefault(); pulse(runBtn); run(); }
   });
-  input.addEventListener('input', () => autosize(input));
+  input.addEventListener('input', () => { autosize(input); mirrorTitle(input); });
   row.querySelector('.btn-copy').addEventListener('click', () => copyText(output.value, status));
   row.querySelector('.btn-clear').addEventListener('click', () => {
     input.value = '';
@@ -71,9 +74,17 @@ function createRow(meta) {
     output.classList.remove('error');
     autosize(input);
     autosize(output);
+    mirrorTitle(input);
+    mirrorTitle(output);
     input.focus();
   });
   return row;
+}
+
+/** Keep the native tooltip equal to the value, so a clipped or scrolled-off value can be read by hovering. */
+function mirrorTitle(ta) {
+  if (ta.value === '') ta.removeAttribute('title');
+  else ta.title = ta.value;
 }
 
 /** Grow a textarea from one row up to MAX_ROWS to fit its content; beyond that it scrolls. */

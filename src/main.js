@@ -3,8 +3,10 @@ import { createTabBar } from './ui/tabs.js';
 import { createTabPanel } from './ui/tab-panel.js';
 import { createQuickPanel } from './ui/quick-panel.js';
 import { createThemeToggle } from './ui/theme.js';
+import { pressFeedback } from './ui/feedback.js';
 
 const root = document.getElementById('app');
+pressFeedback(root);
 const bar = createTabBar(root);
 bar.addTool(createThemeToggle().el);
 

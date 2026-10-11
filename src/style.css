@@ -14,6 +14,9 @@
   --error-bg: #fbeeee;
   --error-border: #c33;
   --close-fg: #889;
+  --hover-brightness: 0.94;
+  --active-brightness: 0.82;
+  --focus-ring: #4a7ddc;
 }
 :root[data-theme="dark"] {
   color-scheme: dark;
@@ -31,12 +34,19 @@
   --error-bg: #3a2224;
   --error-border: #d05a5a;
   --close-fg: #7d8094;
+  --hover-brightness: 1.2;
+  --active-brightness: 1.5;
+  --focus-ring: #7ea6ec;
 }
 
 :root { font-family: system-ui, sans-serif; font-size: 13px; color: var(--fg); background: var(--bg); }
 html, body, #app { height: 100%; margin: 0; }
 #app { display: flex; flex-direction: column; }
 button, select { color: var(--fg); background: var(--surface); border: 1px solid var(--border); border-radius: 4px; }
+button { cursor: pointer; transition: transform 80ms ease, filter 80ms ease; }
+button:hover { filter: brightness(var(--hover-brightness)); }
+button:active, button.pressed { transform: translateY(1px) scale(0.96); filter: brightness(var(--active-brightness)); }
+button:focus-visible { outline: 2px solid var(--focus-ring); outline-offset: 1px; }
 
 /* tab bar */
 .tab-bar { display: flex; align-items: flex-end; gap: 4px; padding: 6px 8px 0; border-bottom: 1px solid var(--border); background: var(--bar-bg); }
@@ -79,5 +89,5 @@ textarea.error { background: var(--error-bg); border-color: var(--error-border);
 .quick-row { display: flex; align-items: center; gap: 8px; padding: 6px 8px; border: 1px solid var(--border); border-radius: 6px; background: var(--surface); }
 .quick-row button { font: inherit; padding: 4px 8px; }
 .quick-name { min-width: 150px; font-weight: 600; }
-.quick-row textarea { flex: 1; min-width: 0; }
+.quick-row textarea { flex: 1; min-width: 0; overflow-x: hidden; } /* a scrollbar in a one-line box hides the line; hover shows the full value */
 .quick-row .status { margin-left: 0; min-width: 60px; }

@@ -136,6 +136,27 @@ describe('createQuickPanel', () => {
     expect(group.querySelector('.quick-row .input').value).toBe('kept');
   });
 
+  it('mirrors the input and output values into their title tooltips', () => {
+    const { rows } = setup();
+    const { input, output, run, clear } = rows[1];
+    expect(input.hasAttribute('title')).toBe(false);
+    expect(output.hasAttribute('title')).toBe(false);
+    input.value = 'some\ninput';
+    input.dispatchEvent(new Event('input'));
+    expect(input.title).toBe('some\ninput');
+    run.click();
+    expect(output.title).toBe('kaboom');
+    clear.click();
+    expect(input.hasAttribute('title')).toBe(false);
+    expect(output.hasAttribute('title')).toBe(false);
+  });
+
+  it('Ctrl+Enter flashes the ▶ button as if clicked', () => {
+    const { rows } = setup();
+    rows[0].input.dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter', ctrlKey: true, bubbles: true }));
+    expect(rows[0].run.classList.contains('pressed')).toBe(true);
+  });
+
   it('shows meta.quickPlaceholder in the input when set, and nothing otherwise', () => {
     const dated = { ...upper, name: 'dated', quickPlaceholder: 'year, month, day' };
     const { rows } = setup([dated, upper]);
