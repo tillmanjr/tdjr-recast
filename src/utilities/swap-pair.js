@@ -2,16 +2,20 @@
  * swapPair — reverse the two sides of a separated pair.
  *
  * Accepts: one string of the form <LHS><separator><RHS>, e.g. "12\t34",
- *          "12 34", "12,34", "12, 34" or "12 , 34". The separator is the
- *          first run of tab, space and comma characters; everything after it
- *          is the right-hand side.
+ *          "12 34", "12,34", "12, 34" or "6 66   , 999". The separator is a
+ *          run of tab, space and comma characters. Which run: the strongest
+ *          separator present decides, comma over tab over space, and the
+ *          first run containing it is the split; everything after that run
+ *          is the right-hand side. So "6 66   , 999" splits at the comma run,
+ *          not at the space inside "6 66".
  * Returns: <RHS><separator><LHS>. A single space or tab is kept as is; a
  *          longer separator is trimmed at both ends (", " and " , " both
  *          become ","), and a run that is only whitespace collapses to one
  *          of its character.
  */
 
-const SEPARATOR_RUN = /[\t ,]+/;
+const PRECEDENCE = [',', '\t', ' '];
+const SEPARATOR_RUNS = /[\t ,]+/g;
 
 /**
  * @param {string} input
@@ -20,7 +24,8 @@ const SEPARATOR_RUN = /[\t ,]+/;
  */
 export function swapPair(input, {} = {}) {
   const text = input.trim();
-  const m = SEPARATOR_RUN.exec(text);
+  const strongest = PRECEDENCE.find((c) => text.includes(c));
+  const m = strongest === undefined ? null : [...text.matchAll(SEPARATOR_RUNS)].find((run) => run[0].includes(strongest));
   const lhs = m ? text.slice(0, m.index) : '';
   const rhs = m ? text.slice(m.index + m[0].length) : '';
   if (lhs === '' || rhs === '') throw new Error('Expected two pieces separated by tabs, spaces or commas');

@@ -20,10 +20,17 @@ describe('swapPair', () => {
     expect(swapPair('x\t\ty')).toBe('y\tx');
   });
 
-  it('uses the first run of separator characters; the rest belongs to the right-hand side', () => {
+  it('splits on the strongest separator present: comma beats tab beats space', () => {
+    expect(swapPair('6 66   , 999')).toBe('999,6 66');
+    expect(swapPair('6 66\t999')).toBe('999\t6 66');
+    expect(swapPair('a\tb, c')).toBe('c,a\tb');
+    expect(swapPair('a b\tc,d')).toBe('d,a b\tc');
+  });
+
+  it('with only one kind of separator, splits at its first run; the rest belongs to the right-hand side', () => {
     expect(swapPair('1 2 3')).toBe('2 3 1');
     expect(swapPair('a,b,c')).toBe('b,c,a');
-    expect(swapPair('a b\tc,d')).toBe('b\tc,d a');
+    expect(swapPair('6  66 999')).toBe('66 999 6');
   });
 
   it('ignores whitespace around the whole input', () => {
