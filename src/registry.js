@@ -3,9 +3,11 @@
  * add it to `modules` keyed by file name. The key appears in error messages.
  */
 import * as hexdumpExtractText from './utilities/hexdump-extract-text.js';
+import * as weekOfTheYear from './utilities/week-of-the-year.js';
 
 const modules = {
   'hexdump-extract-text.js': hexdumpExtractText,
+  'week-of-the-year.js': weekOfTheYear,
 };
 
 export const INPUT_TYPES = ['string', 'lines', 'both'];

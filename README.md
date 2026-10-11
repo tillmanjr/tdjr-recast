@@ -84,7 +84,7 @@ pnpm tauri build --no-bundle   # refresh src-tauri/target/release/convert-extrac
 pnpm tauri build               # also produce the MSI and NSIS installers under src-tauri/target/release/bundle/
 ```
 
-Utilities are listed by category then name, so choose categories deliberately as the collection grows. Categories in use: `hex`, `text`.
+Utilities are listed by category then name, so choose categories deliberately as the collection grows. Categories in use: `date`, `hex`.
 
 ## Development
 

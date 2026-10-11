@@ -16,9 +16,13 @@ describe('app boot', () => {
     expect(document.querySelectorAll('.tab')[0].querySelector('.tab-close')).toBeNull();
   });
 
-  it('lists the hexdump utility as a Quick row and runs it end to end', () => {
-    const row = document.querySelector('.quick-row');
-    expect(row.querySelector('.quick-name').textContent).toBe('hexdump → text');
+  it('lists every quick utility as a Quick row, by category then name', () => {
+    const names = [...document.querySelectorAll('.quick-row .quick-name')].map((e) => e.textContent);
+    expect(names).toEqual(['date → week of the year', 'hexdump → text']);
+  });
+
+  it('runs a Quick row end to end', () => {
+    const row = [...document.querySelectorAll('.quick-row')].find((r) => r.querySelector('.quick-name').textContent === 'hexdump → text');
     row.querySelector('.input').value = '68656c6c6f';
     row.querySelector('.btn-run').click();
     expect(row.querySelector('.output').value).toBe('hello');
