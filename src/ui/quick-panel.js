@@ -7,8 +7,9 @@ const MAX_ROWS = 4;
 /**
  * The Quick tab: one collapsible group per category, in the order the
  * utilities arrive (the registry's), with one row per utility inside.
+ * `onRun` hears every run: { meta, input, output, ok }.
  */
-export function createQuickPanel({ utilities }) {
+export function createQuickPanel({ utilities, onRun = () => {} }) {
   const el = document.createElement('div');
   el.className = 'panel quick';
   if (utilities.length === 0) {
@@ -28,12 +29,12 @@ export function createQuickPanel({ utilities }) {
       el.append(group);
       groups.set(meta.category, group);
     }
-    groups.get(meta.category).append(createRow(meta));
+    groups.get(meta.category).append(createRow(meta, onRun));
   }
   return { el };
 }
 
-function createRow(meta) {
+function createRow(meta, onRun) {
   const row = document.createElement('div');
   row.className = 'quick-row';
   row.innerHTML = `
@@ -59,6 +60,7 @@ function createRow(meta) {
     output.classList.toggle('error', !res.ok);
     autosize(output);
     mirrorTitle(output);
+    onRun({ meta, input: input.value, output: output.value, ok: res.ok });
   }
 
   const runBtn = row.querySelector('.btn-run');

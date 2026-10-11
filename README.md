@@ -12,6 +12,7 @@ Built with [Tauri 2](https://tauri.app) and a vanilla JavaScript + [Vite](https:
   - **Side by side / Stacked** switches that tab between a vertical and a horizontal layout.
   - **Wrap** on each area toggles soft wrapping. Off by default.
   - **Split lines** appears only for utilities that accept both forms of input. Ticked, the input is split one line per array element; unticked, the text goes through whole (use this for pasted JSON you want kept intact).
+- **Log** at the right of the tab bar opens a drawer listing every Quick run this session: local timestamp, `category:name`, input, output, tab-separated and one line each (line breaks inside values are written as `\n`; failed runs show `ERROR: message`). Select any part of it, or use Copy for the whole log and Clear to empty it. The log is not kept between launches.
 - **☾ / ☀** at the right of the tab bar switches between light and dark mode. The first launch follows your system setting; after that your choice is remembered.
 - Window size and position are restored on relaunch. Tab contents are not; every launch starts fresh.
 

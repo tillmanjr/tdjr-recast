@@ -59,6 +59,18 @@ describe('app boot', () => {
     expect(activeTitle()).toBe('Untitled');
   });
 
+  it('logs Quick runs and shows them in the drawer on request', () => {
+    const drawer = document.querySelector('.log-drawer');
+    expect(drawer.hidden).toBe(true);
+    const row = [...document.querySelectorAll('.quick-row')].find((r) => r.querySelector('.quick-name').textContent === 'Swap pair');
+    row.querySelector('.input').value = '1, 2';
+    row.querySelector('.btn-run').click();
+    document.querySelector('.tab-bar .tab-tools .btn-log').click();
+    expect(drawer.hidden).toBe(false);
+    const lines = drawer.querySelector('.log-text').value.split('\n');
+    expect(lines.at(-1)).toMatch(/^\d{4}-\d{2}-\d{2}T[^\t]+\tdata:Swap pair\t1, 2\t2,1$/);
+  });
+
   it('every button shows a pressed state when clicked', () => {
     const btn = document.querySelector('.btn-layout');
     btn.click();

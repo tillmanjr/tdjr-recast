@@ -157,6 +157,18 @@ describe('createQuickPanel', () => {
     expect(rows[0].run.classList.contains('pressed')).toBe(true);
   });
 
+  it('reports every run to onRun with the utility, input, output and success flag', () => {
+    const onRun = vi.fn();
+    const panel = createQuickPanel({ utilities: [upper, boom], onRun });
+    const rows = [...panel.el.querySelectorAll('.quick-row')];
+    rows[0].querySelector('.input').value = 'abc';
+    rows[0].querySelector('.btn-run').click();
+    expect(onRun).toHaveBeenLastCalledWith({ meta: upper, input: 'abc', output: 'ABC', ok: true });
+    rows[1].querySelector('.input').dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter', ctrlKey: true, bubbles: true }));
+    expect(onRun).toHaveBeenLastCalledWith({ meta: boom, input: '', output: 'kaboom', ok: false });
+    expect(onRun).toHaveBeenCalledTimes(2);
+  });
+
   it('shows meta.quickPlaceholder in the input when set, and nothing otherwise', () => {
     const dated = { ...upper, name: 'dated', quickPlaceholder: 'year, month, day' };
     const { rows } = setup([dated, upper]);

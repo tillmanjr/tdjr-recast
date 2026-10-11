@@ -56,7 +56,18 @@ button:focus-visible { outline: 2px solid var(--focus-ring); outline-offset: 1px
 .tab-close { border: none; background: none; cursor: pointer; color: var(--close-fg); padding: 0 2px; font-size: 14px; line-height: 1; }
 .tab-close:hover { color: var(--error-border); }
 .tab-add { border: 1px solid var(--border); background: var(--surface); border-radius: 6px 6px 0 0; padding: 6px 10px; cursor: pointer; }
-.tab-tools { margin-left: auto; align-self: center; padding-bottom: 6px; }
+.tab-tools { margin-left: auto; align-self: center; padding-bottom: 6px; display: flex; gap: 6px; }
+.btn-log { font: inherit; padding: 3px 8px; }
+
+/* quick log drawer */
+.log-drawer { display: flex; flex-direction: column; height: 220px; min-height: 80px; resize: vertical; overflow: hidden; border-top: 1px solid var(--border); background: var(--bar-bg); padding: 6px 8px 8px; gap: 6px; }
+.log-drawer[hidden] { display: none; }
+.log-head { display: flex; align-items: center; gap: 8px; font-size: 12px; }
+.log-title { font-weight: 600; }
+.log-count { color: var(--fg-muted); }
+.log-status { margin-left: auto; color: var(--fg-muted); }
+.log-head button { font: inherit; padding: 2px 8px; }
+.log-text { flex: 1; min-height: 0; }
 .btn-theme { font: inherit; font-size: 15px; line-height: 1; padding: 3px 8px; cursor: pointer; }
 
 /* panels */
