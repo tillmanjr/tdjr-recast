@@ -114,6 +114,7 @@ describe('real registry', () => {
       'CSV → JSON',
       'JSON → CSV',
       'JSON → TSV',
+      'Swap pair',
       'TSV → JSON',
       'date → week of the year',
       'hexdump → text',

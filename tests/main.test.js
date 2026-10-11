@@ -18,15 +18,15 @@ describe('app boot', () => {
 
   it('lists only the quick utilities as Quick rows, hexdump excluded', () => {
     const names = [...document.querySelectorAll('.quick-row .quick-name')].map((e) => e.textContent);
-    expect(names).toHaveLength(12);
-    expect(names[0]).toBe('date → week of the year');
+    expect(names).toHaveLength(13);
+    expect(names.slice(0, 2)).toEqual(['Swap pair', 'date → week of the year']);
     expect(names).not.toContain('hexdump → text');
   });
 
   it('groups the Quick rows by category with the type detector heading the timestamp group', () => {
     const groups = [...document.querySelectorAll('details.quick-group')];
-    expect(groups.map((g) => g.querySelector('.quick-group-title').textContent)).toEqual(['date', 'timestamp', 'web']);
-    expect(groups[1].querySelector('.quick-row .quick-name').textContent).toBe('timestamp → type');
+    expect(groups.map((g) => g.querySelector('.quick-group-title').textContent)).toEqual(['data', 'date', 'timestamp', 'web']);
+    expect(groups[2].querySelector('.quick-row .quick-name').textContent).toBe('timestamp → type');
   });
 
   it('runs a Quick row end to end and shows its placeholder', () => {

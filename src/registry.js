@@ -10,6 +10,7 @@ import * as hexdumpExtractText from './utilities/hexdump-extract-text.js';
 import * as jsonToCsv from './utilities/json-to-csv.js';
 import * as jsonToTsv from './utilities/json-to-tsv.js';
 import * as sqliteJulianToDate from './utilities/sqlite-julian-to-date.js';
+import * as swapPair from './utilities/swap-pair.js';
 import * as timestampType from './utilities/timestamp-type.js';
 import * as tsvToJson from './utilities/tsv-to-json.js';
 import * as unixMicrosToDate from './utilities/unix-micros-to-date.js';
@@ -31,6 +32,7 @@ const modules = {
   'json-to-csv.js': jsonToCsv,
   'json-to-tsv.js': jsonToTsv,
   'sqlite-julian-to-date.js': sqliteJulianToDate,
+  'swap-pair.js': swapPair,
   'timestamp-type.js': timestampType,
   'tsv-to-json.js': tsvToJson,
   'unix-micros-to-date.js': unixMicrosToDate,
